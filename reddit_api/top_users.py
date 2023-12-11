@@ -22,7 +22,7 @@ def make_authenticated_request(url: str, token: str, params=None): # TODO: Add a
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 
-def convert_unix_timestamp(ts: float) -> datetime:
+def convert_unix_timestamp(unix_timestamp: float) -> datetime:
     return datetime.utcfromtimestamp(ts)
 
 def get_date_limit(limit_in_days: int) -> datetime:
@@ -31,8 +31,18 @@ def get_date_limit(limit_in_days: int) -> datetime:
 def create_subreddit_url(subreddit_name: str) -> str:
     return f'{REDDIT_OAUTH_URL}/r/{subreddit_name}/new'
 
+def process_comments(comment_data, comment_counter): # TODO: Add annotation
+    if 'data' in comment_data and 'children' in comment_data['data']:
+        for comment in comment_data['data']['children']:
+            if 'data' in comment and 'author' in comment['data']:
+                comment_author = comment['data']['author']
+                comment_counter[comment_author] += 1
+            if 'replies' in comment['data']:
+                process_comments(comment['data']['replies'], comment_counter)
+
 def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3): # TODO: Add annotation for output
     post_counter = Counter()
+    comment_counter = Counter()
     params = {'t': 'all', 'limit': 100}
 
     date_limit = get_date_limit(time_period)
@@ -45,22 +55,27 @@ def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: i
         for item in response['data']['children']:
             post = item['data']
             post_created_date = convert_unix_timestamp(post['created'])
-
             if post_created_date < date_limit:
                 reached_date_limit = True
                 break
             else:
                 post_counter[post['author']] += 1
+                permalink = post['permalink']
+                comments_url = f'{REDDIT_OAUTH_URL}{permalink}.json'
+                comments_response = make_authenticated_request(comments_url, token)
+                process_comments(comments_response[1], comment_counter)
 
         params['after'] = response['data']['after']
         counter += 1
 
     top_posters = post_counter.most_common(limit)
-    return top_posters
+    top_commenters = comment_counter.most_common(limit)
+    return top_posters, top_commenters
 
 # Example usage
 subreddit_name = 'books'
 subreddit_url = create_subreddit_url(subreddit_name)
 token = get_token(settings.CLIENT_ID, settings.SECRET, settings.USERNAME, settings.PASSWORD)
-top_users = get_top_users(subreddit_url, token)
-print(top_users)
+top_posters, top_commenters = get_top_users(subreddit_url, token)
+print("Top Posters:", top_posters)
+print("Top Commenters:", top_commenters)
