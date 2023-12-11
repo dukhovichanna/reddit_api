@@ -1,6 +1,7 @@
 import settings
 from datetime import datetime, timedelta
 from collections import Counter
+from typing import Dict, Any
 import requests
 
 REDDIT_API_URL = 'https://www.reddit.com/api/v1/access_token'
@@ -17,13 +18,13 @@ def get_token(client_id: str, client_secret: str, username: str, password: str) 
     response = requests.post(REDDIT_API_URL, data=data, headers=headers, auth=auth)
     return response.json()["access_token"]
 
-def make_authenticated_request(url: str, token: str, params=None): # TODO: Add annotiation to params and output
+def make_authenticated_request(url: str, token: str, params=None): # TODO: Add annotation for output
     headers = {"User-Agent": settings.USER_AGENT, "Authorization": f"bearer {token}"}
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 
 def convert_unix_timestamp(unix_timestamp: float) -> datetime:
-    return datetime.utcfromtimestamp(ts)
+    return datetime.utcfromtimestamp(unix_timestamp)
 
 def get_date_limit(limit_in_days: int) -> datetime:
     return datetime.today() - timedelta(days=limit_in_days)
@@ -31,7 +32,7 @@ def get_date_limit(limit_in_days: int) -> datetime:
 def create_subreddit_url(subreddit_name: str) -> str:
     return f'{REDDIT_OAUTH_URL}/r/{subreddit_name}/new'
 
-def process_comments(comment_data, comment_counter): # TODO: Add annotation
+def process_comments(comment_data, comment_counter) -> None:
     if 'data' in comment_data and 'children' in comment_data['data']:
         for comment in comment_data['data']['children']:
             if 'data' in comment and 'author' in comment['data']:
@@ -41,8 +42,8 @@ def process_comments(comment_data, comment_counter): # TODO: Add annotation
                 process_comments(comment['data']['replies'], comment_counter)
 
 def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3): # TODO: Add annotation for output
-    post_counter = Counter()
-    comment_counter = Counter()
+    post_counter: Counter = Counter()
+    comment_counter: Counter = Counter()
     params = {'t': 'all', 'limit': 100}
 
     date_limit = get_date_limit(time_period)
