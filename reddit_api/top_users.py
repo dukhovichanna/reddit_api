@@ -1,4 +1,4 @@
-import settings
+from . import settings
 from datetime import datetime, timedelta
 from collections import Counter
 from typing import Dict, Any
@@ -73,10 +73,10 @@ def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: i
     top_commenters = comment_counter.most_common(limit)
     return top_posters, top_commenters
 
-# Example usage
-subreddit_name = 'books'
-subreddit_url = create_subreddit_url(subreddit_name)
-token = get_token(settings.CLIENT_ID, settings.SECRET, settings.USERNAME, settings.PASSWORD)
-top_posters, top_commenters = get_top_users(subreddit_url, token)
-print("Top Posters:", top_posters)
-print("Top Commenters:", top_commenters)
+if __name__ == "__main__":
+    subreddit_name = 'books'
+    subreddit_url = create_subreddit_url(subreddit_name)
+    token = get_token(settings.CLIENT_ID, settings.SECRET, settings.USERNAME, settings.PASSWORD)
+    top_posters, top_commenters = get_top_users(subreddit_url, token)
+    print("Top Posters:", top_posters)
+    print("Top Commenters:", top_commenters)
