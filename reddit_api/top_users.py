@@ -1,6 +1,7 @@
 from . import settings
 from datetime import datetime, timedelta
 from collections import Counter
+from typing import Dict, Any
 import requests
 import re
 
@@ -36,7 +37,7 @@ def create_subreddit_url(subreddit_name: str) -> str:
         raise ValueError("Subreddit name must only contain alphanumeric characters and underscores.")
     return f'https://oauth.reddit.com/r/{subreddit_name}/new'
 
-def process_comments(comment_data, comment_counter) -> None:
+def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:
     if 'data' in comment_data and 'children' in comment_data['data']:
         for comment in comment_data['data']['children']:
             if 'data' in comment and 'author' in comment['data']:
