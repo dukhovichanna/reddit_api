@@ -1,8 +1,8 @@
 from . import settings
 from datetime import datetime, timedelta
 from collections import Counter
-from typing import Dict, Any
 import requests
+import re
 
 REDDIT_API_URL = 'https://www.reddit.com/api/v1/access_token'
 REDDIT_OAUTH_URL = 'https://oauth.reddit.com'
@@ -27,10 +27,14 @@ def convert_unix_timestamp(unix_timestamp: float) -> datetime:
     return datetime.utcfromtimestamp(unix_timestamp)
 
 def get_date_limit(limit_in_days: int) -> datetime:
+    if limit_in_days < 0:
+        raise ValueError("The limit_in_days argument must be a non-negative integer.")
     return datetime.today() - timedelta(days=limit_in_days)
 
 def create_subreddit_url(subreddit_name: str) -> str:
-    return f'{REDDIT_OAUTH_URL}/r/{subreddit_name}/new'
+    if not re.match("^[a-zA-Z0-9_]+$", subreddit_name):
+        raise ValueError("Subreddit name must only contain alphanumeric characters and underscores.")
+    return f'https://oauth.reddit.com/r/{subreddit_name}/new'
 
 def process_comments(comment_data, comment_counter) -> None:
     if 'data' in comment_data and 'children' in comment_data['data']:
