@@ -1,14 +1,19 @@
 from . import settings
+from reddit_api.config import config
 from datetime import datetime, timedelta
 from collections import Counter
 from typing import Dict, Any
 import requests
 import re
+import logging
 
 REDDIT_API_URL = 'https://www.reddit.com/api/v1/access_token'
 REDDIT_OAUTH_URL = 'https://oauth.reddit.com'
 
+logger = logging.getLogger(__name__)
+
 def get_token(client_id: str, client_secret: str, username: str, password: str) -> str:
+    logger.debug("Getting token...")
     headers = {"User-Agent": settings.USER_AGENT}
     data = {
         "grant_type": "password",
@@ -47,8 +52,8 @@ def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> 
                 process_comments(comment['data']['replies'], comment_counter)
 
 def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3): # TODO: Add annotation for output
-    post_counter: Counter = Counter()
-    comment_counter: Counter = Counter()
+    post_counter: Counter[str] = Counter()
+    comment_counter: Counter[str] = Counter()
     params = {'t': 'all', 'limit': 100}
 
     date_limit = get_date_limit(time_period)
@@ -78,10 +83,4 @@ def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: i
     top_commenters = comment_counter.most_common(limit)
     return top_posters, top_commenters
 
-if __name__ == "__main__":
-    subreddit_name = 'books'
-    subreddit_url = create_subreddit_url(subreddit_name)
-    token = get_token(settings.CLIENT_ID, settings.SECRET, settings.USERNAME, settings.PASSWORD)
-    top_posters, top_commenters = get_top_users(subreddit_url, token)
-    print("Top Posters:", top_posters)
-    print("Top Commenters:", top_commenters)
+

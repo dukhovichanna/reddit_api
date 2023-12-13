@@ -30,3 +30,7 @@ cover/
 
 # Local Settings
 settings.py
+.env
+
+# VS Code
+.vscode/
