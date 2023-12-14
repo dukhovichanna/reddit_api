@@ -1,4 +1,3 @@
-from . import settings
 from reddit_api.config import config
 from datetime import datetime, timedelta
 from collections import Counter
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def get_token(client_id: str, client_secret: str, username: str, password: str) -> str:
     logger.debug("Getting token...")
-    headers = {"User-Agent": settings.USER_AGENT}
+    headers = {"User-Agent": config.user_agent}
     data = {
         "grant_type": "password",
         "username": username,
@@ -25,7 +24,7 @@ def get_token(client_id: str, client_secret: str, username: str, password: str) 
     return response.json()["access_token"]
 
 def make_authenticated_request(url: str, token: str, params=None): # TODO: Add annotation for output
-    headers = {"User-Agent": settings.USER_AGENT, "Authorization": f"bearer {token}"}
+    headers = {"User-Agent": config.user_agent, "Authorization": f"bearer {token}"}
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 

@@ -1,6 +1,7 @@
 import pytest
 from reddit_api.top_users import convert_unix_timestamp, get_date_limit, create_subreddit_url
 from datetime import datetime, timedelta
+from reddit_api.config import config
 
 
 @pytest.mark.parametrize(
