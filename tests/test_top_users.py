@@ -1,0 +1,66 @@
+import pytest
+from reddit_api.top_users import convert_unix_timestamp, get_date_limit, create_subreddit_url
+from datetime import datetime, timedelta
+from reddit_api.config import config
+
+
+@pytest.mark.parametrize(
+    "timestamp, expected_result",
+    [
+        (1702340475.0, datetime(2023, 12, 12, 0, 21, 15)),
+        (1.0, datetime(1970, 1, 1, 0, 0, 1)),
+        (2000000000.0, datetime(2033, 5, 18, 3, 33, 20)),
+        (1703980800.0, datetime(2023, 12, 31, 0, 0, 0)),
+    ],
+)
+def test__convert_unix_timestamp_into_utc_datetime(timestamp, expected_result):
+    result = convert_unix_timestamp(timestamp)
+    assert result == expected_result
+
+def test__get_date_limit__positive_number_input():
+    limit_in_days = 7
+    result = get_date_limit(limit_in_days)
+    expected_result = datetime.today() - timedelta(days=limit_in_days)
+    assert result == expected_result
+
+def test__get_date_limit__allow_zero_as_input():
+    limit_in_days = 0
+    result = get_date_limit(limit_in_days)
+    expected_result = datetime.today()
+    assert result == expected_result
+
+def test__get_date_limit_raise_error_when_negative_input():
+    limit_in_days = -7
+    with pytest.raises(ValueError, 
+                       match="The limit_in_days argument must be a non-negative integer."):
+        get_date_limit(limit_in_days)
+
+def test__create_subreddit_url__allow_basic_alpha_name_without_digits():
+    subreddit_name = 'portlandme'
+    result = create_subreddit_url(subreddit_name)
+    expected_result = f'https://oauth.reddit.com/r/{subreddit_name}/new'
+    assert result == expected_result
+
+def test__create_subreddit_url__allow_alpha_numeric_name():
+    subreddit_name = '2007scape'
+    result = create_subreddit_url(subreddit_name)
+    expected_result = f'https://oauth.reddit.com/r/{subreddit_name}/new'
+    assert result == expected_result
+
+def test__create_subreddit_url__allow_alpha_numeric_name_with_underscore():
+    subreddit_name = 'internal_arts'
+    result = create_subreddit_url(subreddit_name)
+    expected_result = f'https://oauth.reddit.com/r/{subreddit_name}/new'
+    assert result == expected_result
+
+def test__create_subreddit_url__raise_error_when_spaces_in_name():
+    subreddit_name = 'portland me'
+    with pytest.raises(ValueError, 
+                       match="Subreddit name must only contain alphanumeric characters and underscores."):
+        create_subreddit_url(subreddit_name)
+
+def test__create_subreddit_url__raise_error_when_special_characters_in_name():
+    subreddit_name = 'portlandme123!@#'
+    with pytest.raises(ValueError, 
+                       match="Subreddit name must only contain alphanumeric characters and underscores."):
+        create_subreddit_url(subreddit_name)
