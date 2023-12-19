@@ -18,16 +18,10 @@ def test__convert_unix_timestamp_into_utc_datetime(timestamp, expected_result):
     assert result == expected_result
 
 def test__get_date_limit__positive_number_input():
-    limit_in_days = 7
-    result = get_date_limit(limit_in_days)
-    expected_result = datetime.today() - timedelta(days=limit_in_days)
-    assert result == expected_result
+    assert get_date_limit(7) == datetime.today() - timedelta(days=7)
 
 def test__get_date_limit__allow_zero_as_input():
-    limit_in_days = 0
-    result = get_date_limit(limit_in_days)
-    expected_result = datetime.today()
-    assert result == expected_result
+    assert get_date_limit(0) == datetime.today()
 
 def test__get_date_limit_raise_error_when_negative_input():
     limit_in_days = -7
