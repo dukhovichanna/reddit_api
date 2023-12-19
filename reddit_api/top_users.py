@@ -1,4 +1,5 @@
 from reddit_api.config import config
+from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta
 from collections import Counter
 from typing import Dict, Any
@@ -38,7 +39,7 @@ def get_date_limit(limit_in_days: int) -> datetime:
 
 def create_subreddit_url(subreddit_name: str) -> str:
     if not re.match("^[a-zA-Z0-9_]+$", subreddit_name):
-        raise ValueError("Subreddit name must only contain alphanumeric characters and underscores.")
+        raise InvalidSubredditNameError()
     return f'https://oauth.reddit.com/r/{subreddit_name}/new'
 
 def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:

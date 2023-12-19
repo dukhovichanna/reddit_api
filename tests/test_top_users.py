@@ -1,5 +1,6 @@
 import pytest
 from reddit_api.top_users import convert_unix_timestamp, get_date_limit, create_subreddit_url
+from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta
 from reddit_api.config import config
 
@@ -49,12 +50,12 @@ def test__create_subreddit_url__allow_alpha_numeric_name_with_underscore():
 
 def test__create_subreddit_url__raise_error_when_spaces_in_name():
     subreddit_name = 'portland me'
-    with pytest.raises(ValueError, 
+    with pytest.raises(InvalidSubredditNameError, 
                        match="Subreddit name must only contain alphanumeric characters and underscores."):
         create_subreddit_url(subreddit_name)
 
 def test__create_subreddit_url__raise_error_when_special_characters_in_name():
     subreddit_name = 'portlandme123!@#'
-    with pytest.raises(ValueError, 
+    with pytest.raises(InvalidSubredditNameError, 
                        match="Subreddit name must only contain alphanumeric characters and underscores."):
         create_subreddit_url(subreddit_name)
