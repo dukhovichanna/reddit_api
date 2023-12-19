@@ -26,7 +26,8 @@ def get_token(client_id: str, client_secret: str, username: str, password: str) 
     return response.json()["access_token"]
 
 
-def make_authenticated_request(url: str, token: str, params=None):  # TODO: Add annotation for output
+# TODO: Add annotation for output
+def make_authenticated_request(url: str, token: str, params=None):
     headers = {"User-Agent": config.user_agent, "Authorization": f"bearer {token}"}
     response = requests.get(url, headers=headers, params=params)
     return response.json()
@@ -58,7 +59,8 @@ def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> 
                 process_comments(comment['data']['replies'], comment_counter)
 
 
-def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3):  # TODO: Add annotation for output
+# TODO: Add annotation for output
+def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3):
     post_counter: Counter[str] = Counter()
     comment_counter: Counter[str] = Counter()
     params = {'t': 'all', 'limit': 100}
