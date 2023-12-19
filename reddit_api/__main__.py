@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def main():
+def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
     subreddit_name = 'books'
     subreddit_url = create_subreddit_url(subreddit_name)
