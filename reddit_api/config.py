@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import os
 
+
 @dataclass
 class Config:
     username: str
@@ -9,6 +10,7 @@ class Config:
     client_id: str
     client_name: str
     user_agent: str
+
 
 def load_from_env() -> Config:
     return Config(
@@ -19,5 +21,6 @@ def load_from_env() -> Config:
         client_name=os.environ['REDDIT_CLIENT_NAME'],
         user_agent=os.environ['REDDIT_USER_AGENT']
     )
+
 
 config = load_from_env()
