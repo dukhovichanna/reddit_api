@@ -4,7 +4,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-if __name__ == "__main__":
+
+def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
     subreddit_name = 'books'
     subreddit_url = create_subreddit_url(subreddit_name)
@@ -12,3 +13,7 @@ if __name__ == "__main__":
     top_posters, top_commenters = get_top_users(subreddit_url, token)
     logger.info("Top Posters: %s", top_posters)
     logger.info("Top Commenters: %s", top_commenters)
+
+
+if __name__ == "__main__":
+    main()

@@ -32,5 +32,3 @@ cover/
 settings.py
 .env
 
-# VS Code
-.vscode/

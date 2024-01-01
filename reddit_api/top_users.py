@@ -1,4 +1,5 @@
 from reddit_api.config import config
+from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta
 from collections import Counter
 from typing import Dict, Any
@@ -10,6 +11,7 @@ REDDIT_API_URL = 'https://www.reddit.com/api/v1/access_token'
 REDDIT_OAUTH_URL = 'https://oauth.reddit.com'
 
 logger = logging.getLogger(__name__)
+
 
 def get_token(client_id: str, client_secret: str, username: str, password: str) -> str:
     logger.debug("Getting token...")
@@ -23,23 +25,29 @@ def get_token(client_id: str, client_secret: str, username: str, password: str) 
     response = requests.post(REDDIT_API_URL, data=data, headers=headers, auth=auth)
     return response.json()["access_token"]
 
-def make_authenticated_request(url: str, token: str, params=None): # TODO: Add annotation for output
+
+# TODO: Add annotation for output
+def make_authenticated_request(url: str, token: str, params=None):
     headers = {"User-Agent": config.user_agent, "Authorization": f"bearer {token}"}
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 
+
 def convert_unix_timestamp(unix_timestamp: float) -> datetime:
     return datetime.utcfromtimestamp(unix_timestamp)
+
 
 def get_date_limit(limit_in_days: int) -> datetime:
     if limit_in_days < 0:
         raise ValueError("The limit_in_days argument must be a non-negative integer.")
     return datetime.today() - timedelta(days=limit_in_days)
 
+
 def create_subreddit_url(subreddit_name: str) -> str:
     if not re.match("^[a-zA-Z0-9_]+$", subreddit_name):
-        raise ValueError("Subreddit name must only contain alphanumeric characters and underscores.")
+        raise InvalidSubredditNameError()
     return f'https://oauth.reddit.com/r/{subreddit_name}/new'
+
 
 def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:
     if 'data' in comment_data and 'children' in comment_data['data']:
@@ -50,7 +58,9 @@ def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> 
             if 'replies' in comment['data']:
                 process_comments(comment['data']['replies'], comment_counter)
 
-def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3): # TODO: Add annotation for output
+
+# TODO: Add annotation for output
+def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3):
     post_counter: Counter[str] = Counter()
     comment_counter: Counter[str] = Counter()
     params = {'t': 'all', 'limit': 100}
@@ -81,5 +91,3 @@ def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: i
     top_posters = post_counter.most_common(limit)
     top_commenters = comment_counter.most_common(limit)
     return top_posters, top_commenters
-
-
