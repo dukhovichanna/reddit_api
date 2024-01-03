@@ -19,6 +19,12 @@ class Post:
     comments_url: str
 
 
+@dataclass
+class Comment:
+    author: str
+    replies: Dict
+
+
 def convert_unix_timestamp(unix_timestamp: float) -> datetime:
     return datetime.utcfromtimestamp(unix_timestamp)
 
@@ -37,12 +43,15 @@ def create_subreddit_url(subreddit_name: str) -> str:
 
 def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:
     if 'data' in comment_data and 'children' in comment_data['data']:
-        for comment in comment_data['data']['children']:
-            if 'data' in comment and 'author' in comment['data']:
-                comment_author = comment['data']['author']
-                comment_counter[comment_author] += 1
-            if 'replies' in comment['data']:
-                process_comments(comment['data']['replies'], comment_counter)
+        for item in comment_data['data']['children']:
+            if 'data' in item and 'author' in item['data']:
+                comment = Comment(
+                    author=item['data']['author'],
+                    replies=item['data'].get('replies', {})
+                )
+                comment_counter[comment.author] += 1
+                if comment.replies != {}:
+                    process_comments(comment.replies, comment_counter)
 
 
 def get_top_users(
