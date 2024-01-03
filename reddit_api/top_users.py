@@ -2,6 +2,7 @@ from reddit_api.reddit_client import RedditClient
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta
 from collections import Counter
+from dataclasses import dataclass
 from typing import Dict, Any, List, Tuple
 import re
 import logging
@@ -9,6 +10,13 @@ import logging
 REDDIT_OAUTH_URL = 'https://oauth.reddit.com'
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class Post:
+    author: str
+    created: datetime
+    comments_url: str
 
 
 def convert_unix_timestamp(unix_timestamp: float) -> datetime:
@@ -54,16 +62,17 @@ def get_top_users(
         response = reddit_client.make_authenticated_request(subreddit_url, params)
 
         for item in response['data']['children']:
-            post = item['data']
-            post_created_date = convert_unix_timestamp(post['created'])
-            if post_created_date < date_limit:
+            post = Post(
+                author=item['data']['author'],
+                created=convert_unix_timestamp(item['data']['created']),
+                comments_url=f"{REDDIT_OAUTH_URL}{item['data']['permalink']}.json"
+            )
+            if post.created < date_limit:
                 reached_date_limit = True
                 break
             else:
-                post_counter[post['author']] += 1
-                permalink = post['permalink']
-                comments_url = f'{REDDIT_OAUTH_URL}{permalink}.json'
-                comments_response = reddit_client.make_authenticated_request(comments_url)
+                post_counter[post.author] += 1
+                comments_response = reddit_client.make_authenticated_request(post.comments_url)
                 process_comments(comments_response[1], comment_counter)
 
         params['after'] = response['data']['after']
