@@ -1,36 +1,14 @@
-from reddit_api.config import config
+from reddit_api.reddit_client import RedditClient
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta
 from collections import Counter
-from typing import Dict, Any
-import requests
+from typing import Dict, Any, List, Tuple
 import re
 import logging
 
-REDDIT_API_URL = 'https://www.reddit.com/api/v1/access_token'
 REDDIT_OAUTH_URL = 'https://oauth.reddit.com'
 
 logger = logging.getLogger(__name__)
-
-
-def get_token(client_id: str, client_secret: str, username: str, password: str) -> str:
-    logger.debug("Getting token...")
-    headers = {"User-Agent": config.user_agent}
-    data = {
-        "grant_type": "password",
-        "username": username,
-        "password": password
-    }
-    auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
-    response = requests.post(REDDIT_API_URL, data=data, headers=headers, auth=auth)
-    return response.json()["access_token"]
-
-
-# TODO: Add annotation for output
-def make_authenticated_request(url: str, token: str, params=None):
-    headers = {"User-Agent": config.user_agent, "Authorization": f"bearer {token}"}
-    response = requests.get(url, headers=headers, params=params)
-    return response.json()
 
 
 def convert_unix_timestamp(unix_timestamp: float) -> datetime:
@@ -60,7 +38,11 @@ def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> 
 
 
 # TODO: Add annotation for output
-def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3):
+def get_top_users(
+        subreddit_url: str,
+        reddit_client: RedditClient,
+        time_period: int = 3,
+        limit: int = 3) -> Tuple[List[Tuple[str, int]], List[Tuple[str, int]]]:
     post_counter: Counter[str] = Counter()
     comment_counter: Counter[str] = Counter()
     params = {'t': 'all', 'limit': 100}
@@ -70,7 +52,7 @@ def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: i
     counter = 0
 
     while counter < 10 and not reached_date_limit:
-        response = make_authenticated_request(subreddit_url, token, params)
+        response = reddit_client.make_authenticated_request(subreddit_url, params)
 
         for item in response['data']['children']:
             post = item['data']
@@ -82,7 +64,7 @@ def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: i
                 post_counter[post['author']] += 1
                 permalink = post['permalink']
                 comments_url = f'{REDDIT_OAUTH_URL}{permalink}.json'
-                comments_response = make_authenticated_request(comments_url, token)
+                comments_response = reddit_client.make_authenticated_request(comments_url)
                 process_comments(comments_response[1], comment_counter)
 
         params['after'] = response['data']['after']
