@@ -25,10 +25,22 @@ class RedditClient:
             "password": self.password
         }
         auth = requests.auth.HTTPBasicAuth(self.client_id, self.client_secret)
-        response = requests.post(REDDIT_API_URL, data=data, headers=headers, auth=auth)
-        return response.json()["access_token"]
+
+        try:
+            response = requests.post(REDDIT_API_URL, data=data, headers=headers, auth=auth)
+            response.raise_for_status()
+            return response.json()["access_token"]
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting token: {e}")
+            raise
 
     def make_authenticated_request(self, url: str, params: Dict[str, Any] | None = None) -> Dict:
         headers = {"User-Agent": self.user_agent, "Authorization": f"bearer {self.get_token()}"}
-        response = requests.get(url, headers=headers, params=params)
-        return response.json()
+
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error making authenticated request: {e}")
+            raise

@@ -37,7 +37,6 @@ def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> 
                 process_comments(comment['data']['replies'], comment_counter)
 
 
-# TODO: Add annotation for output
 def get_top_users(
         subreddit_url: str,
         reddit_client: RedditClient,
