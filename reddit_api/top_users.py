@@ -41,17 +41,21 @@ def create_subreddit_url(subreddit_name: str) -> str:
     return f'https://oauth.reddit.com/r/{subreddit_name}/new'
 
 
-def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:
+def process_comment(item: Dict[str, Any], comment_counter: Counter) -> None:
+    if 'data' in item and 'author' in item['data']:
+        comment = Comment(
+            author=item['data']['author'],
+            replies=item['data'].get('replies', {})
+        )
+        comment_counter[comment.author] += 1
+        if comment.replies != {}:
+            process_all_comments(comment.replies, comment_counter)
+
+
+def process_all_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:
     if 'data' in comment_data and 'children' in comment_data['data']:
         for item in comment_data['data']['children']:
-            if 'data' in item and 'author' in item['data']:
-                comment = Comment(
-                    author=item['data']['author'],
-                    replies=item['data'].get('replies', {})
-                )
-                comment_counter[comment.author] += 1
-                if comment.replies != {}:
-                    process_comments(comment.replies, comment_counter)
+            process_comment(item, comment_counter)
 
 
 def get_top_users(
@@ -59,15 +63,15 @@ def get_top_users(
         reddit_client: RedditClient,
         time_period: int = 3,
         limit: int = 3) -> Tuple[List[Tuple[str, int]], List[Tuple[str, int]]]:
+
     post_counter: Counter[str] = Counter()
     comment_counter: Counter[str] = Counter()
     params = {'t': 'all', 'limit': 100}
 
     date_limit = get_date_limit(time_period)
     reached_date_limit = False
-    counter = 0
 
-    while counter < 10 and not reached_date_limit:
+    while not reached_date_limit:
         response = reddit_client.make_authenticated_request(subreddit_url, params)
 
         for item in response['data']['children']:
@@ -82,10 +86,9 @@ def get_top_users(
             else:
                 post_counter[post.author] += 1
                 comments_response = reddit_client.make_authenticated_request(post.comments_url)
-                process_comments(comments_response[1], comment_counter)
+                process_all_comments(comments_response[1], comment_counter)
 
         params['after'] = response['data']['after']
-        counter += 1
 
     top_posters = post_counter.most_common(limit)
     top_commenters = comment_counter.most_common(limit)
