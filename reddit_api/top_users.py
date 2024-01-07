@@ -58,17 +58,14 @@ def process_all_comments(comment_data: Dict[str, Any], comment_counter: Counter)
             process_comment(item, comment_counter)
 
 
-def get_top_users(
+def get_posts(
         subreddit_url: str,
         reddit_client: RedditClient,
-        time_period: int = 3,
-        limit: int = 3) -> Tuple[List[Tuple[str, int]], List[Tuple[str, int]]]:
+        params: Dict) -> Tuple[Counter[str], Counter[str]]:
 
-    post_counter: Counter[str] = Counter()
-    comment_counter: Counter[str] = Counter()
-    params = {'t': 'all', 'limit': 100}
-
-    date_limit = get_date_limit(time_period)
+    post_counter: Counter = Counter()
+    comment_counter: Counter = Counter()
+    date_limit = get_date_limit(params['time_period'])
     reached_date_limit = False
 
     while not reached_date_limit:
@@ -89,6 +86,18 @@ def get_top_users(
                 process_all_comments(comments_response[1], comment_counter)
 
         params['after'] = response['data']['after']
+
+    return post_counter, comment_counter
+
+
+def get_top_users(
+        subreddit_url: str,
+        reddit_client: RedditClient,
+        time_period: int = 3,
+        limit: int = 100) -> Tuple[List[Tuple[str, int]], List[Tuple[str, int]]]:
+
+    params = {'t': 'all', 'limit': limit, 'time_period': time_period}
+    post_counter, comment_counter = get_posts(subreddit_url, reddit_client, params)
 
     top_posters = post_counter.most_common(limit)
     top_commenters = comment_counter.most_common(limit)
