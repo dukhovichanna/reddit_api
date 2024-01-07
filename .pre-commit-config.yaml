@@ -3,6 +3,7 @@ repos:
     rev: 6.1.0
     hooks:
       - id: flake8
+        exclude: ^tests
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.1
@@ -11,6 +12,7 @@ repos:
         verbose: true
         args: [--show-error-codes]
         additional_dependencies: ['types-requests']
+        exclude: ^tests
 
 
   - repo: local

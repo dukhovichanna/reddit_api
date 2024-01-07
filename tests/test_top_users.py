@@ -1,8 +1,12 @@
 import pytest
-from reddit_api.top_users import convert_unix_timestamp, get_date_limit, create_subreddit_url
+from reddit_api.top_users import (
+    convert_unix_timestamp,
+    get_date_limit,
+    create_subreddit_url,
+    construct_params
+)
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta
-from reddit_api.config import config
 
 
 @pytest.mark.parametrize(
@@ -59,3 +63,19 @@ def test__create_subreddit_url__raise_error_when_special_characters_in_name():
     with pytest.raises(InvalidSubredditNameError, 
                        match="Subreddit name must only contain alphanumeric characters and underscores."):
         create_subreddit_url(subreddit_name)
+
+def test__construct_params__valid_input():
+    result = construct_params(time_period=7, num_posts_per_page=50)
+    assert result == {'t': 'all', 'limit': '50', 'time_period': 7}
+
+def test__construct_params__default_num_posts():
+    result = construct_params(time_period=30)
+    assert result == {'t': 'all', 'limit': '100', 'time_period': 30}
+
+def test__construct_params__raise_error_when_invalid_time_period():
+    with pytest.raises(ValueError, match="The time_period argument must be a non-negative integer."):
+        construct_params(time_period=-1, num_posts_per_page=50)
+
+def test__construct_params__raise_error_when_invalid_num_posts():
+    with pytest.raises(ValueError, match="The num_posts argument must be a positive integer."):
+        construct_params(time_period=7, num_posts_per_page=0)

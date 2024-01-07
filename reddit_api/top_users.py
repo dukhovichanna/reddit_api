@@ -90,15 +90,26 @@ def get_posts(
     return post_counter, comment_counter
 
 
+def construct_params(time_period: int, num_posts_per_page: int = 100) -> Dict[str, str | int]:
+    if time_period < 0:
+        raise ValueError("The time_period argument must be a non-negative integer.")
+
+    if num_posts_per_page < 1:
+        raise ValueError("The num_posts argument must be a positive integer.")
+
+    return {'t': 'all', 'limit': str(num_posts_per_page), 'time_period': time_period}
+
+
 def get_top_users(
         subreddit_url: str,
         reddit_client: RedditClient,
         time_period: int = 3,
-        limit: int = 100) -> Tuple[List[Tuple[str, int]], List[Tuple[str, int]]]:
+        num_posts: int = 100,
+        how_many: int = 3) -> Tuple[List[Tuple[str, int]], List[Tuple[str, int]]]:
 
-    params = {'t': 'all', 'limit': limit, 'time_period': time_period}
+    params = construct_params(time_period, num_posts)
     post_counter, comment_counter = get_posts(subreddit_url, reddit_client, params)
 
-    top_posters = post_counter.most_common(limit)
-    top_commenters = comment_counter.most_common(limit)
+    top_posters = post_counter.most_common(how_many)
+    top_commenters = comment_counter.most_common(how_many)
     return top_posters, top_commenters
