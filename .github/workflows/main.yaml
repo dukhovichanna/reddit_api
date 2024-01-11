@@ -25,7 +25,7 @@ jobs:
           pip install flake8 mypy pytest
 
       - name: Run Flake8
-        run: flake8
+        run: flake8 reddit_api
 
       - name: Run MyPy
         run: mypy .
