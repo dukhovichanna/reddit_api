@@ -22,11 +22,17 @@ def test__convert_unix_timestamp_into_utc_datetime(timestamp, expected_result):
     result = convert_unix_timestamp(timestamp)
     assert result == expected_result
 
+
 def test__get_date_limit__positive_number_input():
-    assert get_date_limit(7) == datetime.today() - timedelta(days=7)
+    result = get_date_limit(7).replace(microsecond=0)
+    expected = datetime.today().replace(microsecond=0) - timedelta(days=7)
+    assert result == expected
 
 def test__get_date_limit__allow_zero_as_input():
-    assert get_date_limit(0) == datetime.today()
+    result = get_date_limit(0).replace(microsecond=0)
+    expected = datetime.today().replace(microsecond=0)
+    assert result == expected
+
 
 def test__get_date_limit_raise_error_when_negative_input():
     limit_in_days = -7
