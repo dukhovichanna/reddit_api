@@ -1,36 +1,28 @@
-from reddit_api.config import config
+from reddit_api.reddit_client import RedditClient
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta
 from collections import Counter
-from typing import Dict, Any
-import requests
+from dataclasses import dataclass
+from typing import Dict, Any, List, Tuple
 import re
 import logging
 
-REDDIT_API_URL = 'https://www.reddit.com/api/v1/access_token'
 REDDIT_OAUTH_URL = 'https://oauth.reddit.com'
 
 logger = logging.getLogger(__name__)
 
 
-def get_token(client_id: str, client_secret: str, username: str, password: str) -> str:
-    logger.debug("Getting token...")
-    headers = {"User-Agent": config.user_agent}
-    data = {
-        "grant_type": "password",
-        "username": username,
-        "password": password
-    }
-    auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
-    response = requests.post(REDDIT_API_URL, data=data, headers=headers, auth=auth)
-    return response.json()["access_token"]
+@dataclass
+class Post:
+    author: str
+    created: datetime
+    comments_url: str
 
 
-# TODO: Add annotation for output
-def make_authenticated_request(url: str, token: str, params=None):
-    headers = {"User-Agent": config.user_agent, "Authorization": f"bearer {token}"}
-    response = requests.get(url, headers=headers, params=params)
-    return response.json()
+@dataclass
+class Comment:
+    author: str
+    replies: Dict
 
 
 def convert_unix_timestamp(unix_timestamp: float) -> datetime:
@@ -49,45 +41,75 @@ def create_subreddit_url(subreddit_name: str) -> str:
     return f'https://oauth.reddit.com/r/{subreddit_name}/new'
 
 
-def process_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:
+def process_comment(item: Dict[str, Any], comment_counter: Counter) -> None:
+    if 'data' in item and 'author' in item['data']:
+        comment = Comment(
+            author=item['data']['author'],
+            replies=item['data'].get('replies', {})
+        )
+        comment_counter[comment.author] += 1
+        if comment.replies != {}:
+            process_all_comments(comment.replies, comment_counter)
+
+
+def process_all_comments(comment_data: Dict[str, Any], comment_counter: Counter) -> None:
     if 'data' in comment_data and 'children' in comment_data['data']:
-        for comment in comment_data['data']['children']:
-            if 'data' in comment and 'author' in comment['data']:
-                comment_author = comment['data']['author']
-                comment_counter[comment_author] += 1
-            if 'replies' in comment['data']:
-                process_comments(comment['data']['replies'], comment_counter)
+        for item in comment_data['data']['children']:
+            process_comment(item, comment_counter)
 
 
-# TODO: Add annotation for output
-def get_top_users(subreddit_url: str, token: str, time_period: int = 3, limit: int = 3):
-    post_counter: Counter[str] = Counter()
-    comment_counter: Counter[str] = Counter()
-    params = {'t': 'all', 'limit': 100}
+def get_posts(
+        subreddit_url: str,
+        reddit_client: RedditClient,
+        params: Dict) -> Tuple[Counter[str], Counter[str]]:
 
-    date_limit = get_date_limit(time_period)
+    post_counter: Counter = Counter()
+    comment_counter: Counter = Counter()
+    date_limit = get_date_limit(params['time_period'])
     reached_date_limit = False
-    counter = 0
 
-    while counter < 10 and not reached_date_limit:
-        response = make_authenticated_request(subreddit_url, token, params)
+    while not reached_date_limit:
+        response = reddit_client.make_authenticated_request(subreddit_url, params)
 
         for item in response['data']['children']:
-            post = item['data']
-            post_created_date = convert_unix_timestamp(post['created'])
-            if post_created_date < date_limit:
+            post = Post(
+                author=item['data']['author'],
+                created=convert_unix_timestamp(item['data']['created']),
+                comments_url=f"{REDDIT_OAUTH_URL}{item['data']['permalink']}.json"
+            )
+            if post.created < date_limit:
                 reached_date_limit = True
                 break
             else:
-                post_counter[post['author']] += 1
-                permalink = post['permalink']
-                comments_url = f'{REDDIT_OAUTH_URL}{permalink}.json'
-                comments_response = make_authenticated_request(comments_url, token)
-                process_comments(comments_response[1], comment_counter)
+                post_counter[post.author] += 1
+                comments_response = reddit_client.make_authenticated_request(post.comments_url)
+                process_all_comments(comments_response[1], comment_counter)
 
         params['after'] = response['data']['after']
-        counter += 1
 
-    top_posters = post_counter.most_common(limit)
-    top_commenters = comment_counter.most_common(limit)
+    return post_counter, comment_counter
+
+
+def construct_params(time_period: int, num_posts_per_page: int = 100) -> Dict[str, str | int]:
+    if time_period < 0:
+        raise ValueError("The time_period argument must be a non-negative integer.")
+
+    if num_posts_per_page < 1:
+        raise ValueError("The num_posts argument must be a positive integer.")
+
+    return {'t': 'all', 'limit': str(num_posts_per_page), 'time_period': time_period}
+
+
+def get_top_users(
+        subreddit_url: str,
+        reddit_client: RedditClient,
+        time_period: int = 3,
+        num_posts: int = 100,
+        how_many: int = 3) -> Tuple[List[Tuple[str, int]], List[Tuple[str, int]]]:
+
+    params = construct_params(time_period, num_posts)
+    post_counter, comment_counter = get_posts(subreddit_url, reddit_client, params)
+
+    top_posters = post_counter.most_common(how_many)
+    top_commenters = comment_counter.most_common(how_many)
     return top_posters, top_commenters
