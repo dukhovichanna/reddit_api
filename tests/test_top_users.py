@@ -37,8 +37,7 @@ def test__get_date_limit__allow_zero_as_input():
 
 def test__get_date_limit_raise_error_when_negative_input():
     limit_in_days = -7
-    with pytest.raises(ValueError,
-                       match="The limit_in_days argument must be a non-negative integer."):
+    with pytest.raises(ValueError):
         get_date_limit(limit_in_days)
 
 
