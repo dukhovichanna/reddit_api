@@ -14,7 +14,8 @@ def main() -> None:
         client_secret=config.secret,
         username=config.username,
         password=config.password,
-        user_agent=config.user_agent
+        user_agent=config.user_agent,
+        api_url=config.api_url
     )
 
     subreddit_name = 'books'
