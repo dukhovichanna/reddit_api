@@ -29,8 +29,6 @@ jobs:
       - name: Run MyPy
         run: mypy .
 
-      - name: Run Pytest
-        run: pytest
 
   pytest:
     runs-on: ubuntu-latest
