@@ -14,7 +14,7 @@ repos:
         args: [--show-error-codes]
         additional_dependencies: ['types-requests']
         exclude: ^tests
-        stages: [push]
+        stages: [pre-push]
 
 
   - repo: local
