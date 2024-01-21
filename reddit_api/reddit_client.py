@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from reddit_api.models import Response
 from typing import Any, Dict
 import requests
 import logging
@@ -33,13 +34,19 @@ class RedditClient:
             logger.error(f"Error getting token: {e}")
             raise
 
-    def make_authenticated_request(self, url: str, params: Dict[str, Any] | None = None) -> Dict:
+    def make_authenticated_request(
+            self, url: str,
+            params: Dict[str, Any] | None = None) -> Response:
+
         headers = {"User-Agent": self.user_agent, "Authorization": f"bearer {self.get_token()}"}
 
         try:
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
-            return response.json()
+            if isinstance(response.json(), list):
+                return Response(**response.json()[1]['data'])
+            else:
+                return Response(**response.json()['data'])
         except requests.exceptions.RequestException as e:
             logger.error(f"Error making authenticated request: {e}")
             raise

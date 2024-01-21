@@ -1,5 +1,5 @@
 from reddit_api.reddit_client import RedditClient
-from reddit_api.models import Post, Comment
+from reddit_api.models import Post, Comment, Response
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
 from collections import Counter
@@ -23,8 +23,8 @@ def create_subreddit_url(subreddit_name: str) -> str:
     return f'https://oauth.reddit.com/r/{subreddit_name}/new'
 
 
-def extract_posts(response: Dict[str, Any]) -> List[Post]:
-    return [Post(**item['data']) for item in response['data']['children']]
+def extract_posts(response: Response) -> List[Post]:
+    return [Post(**item['data']) for item in response.children]
 
 
 def get_posts(reddit_client: RedditClient, date_limit: datetime, subreddit_url: str) -> List[Post]:
@@ -41,7 +41,7 @@ def get_posts(reddit_client: RedditClient, date_limit: datetime, subreddit_url: 
                 break
             else:
                 list_of_posts.append(post)
-        params['after'] = response['data']['after']
+        params['after'] = response.after
 
     return list_of_posts
 
@@ -60,7 +60,7 @@ def get_comments(posts: List[Post], reddit_client: RedditClient) -> List[Comment
     count = 1
     for post in posts:
         comments_response = reddit_client.make_authenticated_request(post.comments_url)
-        process_comments(comments_response[1]['data']['children'], list_of_comments)
+        process_comments(comments_response.children, list_of_comments)
         logger.info("Processed %s post out of %s", count, len(posts))
         count += 1
     return list_of_comments

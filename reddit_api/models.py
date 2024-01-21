@@ -1,7 +1,12 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from pydantic import BaseModel, validator
 from datetime import datetime
 from reddit_api.config import config
+
+
+class Response(BaseModel):
+    after: str | None
+    children: List
 
 
 class Post(BaseModel):

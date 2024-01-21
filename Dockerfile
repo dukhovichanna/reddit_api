@@ -8,6 +8,6 @@ COPY requirements.txt /app
 
 RUN python -m pip install -r requirements.txt
 
-COPY . /app
+COPY reddit_api/ /app/reddit_api
 
 CMD ["python", "-m", "reddit_api"]
