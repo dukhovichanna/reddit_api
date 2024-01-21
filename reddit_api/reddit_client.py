@@ -3,8 +3,6 @@ from typing import Any, Dict
 import requests
 import logging
 
-REDDIT_API_URL = 'https://www.reddit.com/api/v1/access_token'
-
 logger = logging.getLogger(__name__)
 
 
@@ -15,6 +13,7 @@ class RedditClient:
     username: str
     password: str
     user_agent: str
+    api_url: str
 
     def get_token(self) -> str:
         logger.debug("Getting token...")
@@ -27,7 +26,7 @@ class RedditClient:
         auth = requests.auth.HTTPBasicAuth(self.client_id, self.client_secret)
 
         try:
-            response = requests.post(REDDIT_API_URL, data=data, headers=headers, auth=auth)
+            response = requests.post(url=self.api_url, data=data, headers=headers, auth=auth)
             response.raise_for_status()
             return response.json()["access_token"]
         except requests.exceptions.RequestException as e:
