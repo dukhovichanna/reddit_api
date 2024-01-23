@@ -1,7 +1,8 @@
 import pytest
 from reddit_api.top_users import (
     get_date_limit,
-    create_subreddit_url
+    create_subreddit_url,
+    get_top_authors_with_count
 )
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
@@ -22,6 +23,7 @@ def test__get_date_limit_raise_error_when_negative_input():
     limit_in_days = -7
     with pytest.raises(ValueError):
         get_date_limit(limit_in_days)
+
 
 
 def test__create_subreddit_url__allow_basic_alpha_name_without_digits():
@@ -55,3 +57,8 @@ def test__create_subreddit_url__raise_error_when_special_characters_in_name():
     subreddit_name = 'portlandme123!@#'
     with pytest.raises(InvalidSubredditNameError):
         create_subreddit_url(subreddit_name)
+
+
+def test__get_top_authors_with_count__top_commenters(list_of_comments):
+    top_commenters = get_top_authors_with_count(list_of_comments)
+    assert top_commenters == [('Jane', 15),('Jack', 3),('John', 2)]
