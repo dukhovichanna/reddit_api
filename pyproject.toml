@@ -6,7 +6,6 @@ authors = [
     {name = "dukhovichanna", email = "dukhovichanna@gmail.com"},
 ]
 dependencies = [
-    "flake8>=7.0.0",
     "pydantic>=2.5.3",
     "ipykernel>=6.28.0",
 ]
@@ -29,4 +28,5 @@ dev = [
     "flake8>=7.0.0",
     "mypy>=1.8.0",
     "types-requests>=2.31.0.20240106",
+    "pytest-mock>=3.12.0",
 ]

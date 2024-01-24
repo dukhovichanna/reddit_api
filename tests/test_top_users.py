@@ -3,9 +3,10 @@ from reddit_api.top_users import (
     get_date_limit,
     create_subreddit_url,
     get_top_authors_with_count,
-    extract_posts_from_response
+    extract_posts_from_response,
+    get_posts
 )
-from reddit_api.models import Post
+from reddit_api.models import Post, Response
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
 
@@ -81,3 +82,38 @@ def test__extract_posts_from_response__return_list_of_posts(post_response):
 def test__extract_posts_from_response__post_contains_comments_url(post_response):
     result = extract_posts_from_response(post_response)
     assert result[0].comments_url == 'https://oauth.reddit.com/r/books/comments/19cfrzw/my_comment/.json'
+
+
+def test_get_posts(mocker, reddit_client, post_response):  
+    # Create a real Reddit client instance
+    #reddit_client = RedditClient()
+
+    # Mocking the make_authenticated_request method
+    mocker.patch.object(reddit_client, 'make_authenticated_request', side_effect=[
+        post_response,
+        post_response,
+        Response(
+        after="t3_19a64l6",
+        children=[{
+                "data": {
+                    "created": 1643200000,
+                    "author": "throwawayhelp62525",
+                    "permalink": "/r/books/comments/19cfrzw/my_comment/"
+                }
+            }])])
+
+    # Set a date limit for testing
+    date_limit = datetime(2023, 1, 26, tzinfo=timezone.utc)
+
+    # Set a subreddit URL for testing
+    subreddit_url = 'https://oauth.reddit.com/r/test/new'
+
+    # Call the function
+    posts = get_posts(reddit_client, date_limit, subreddit_url)
+
+    # Assert the results
+    assert len(posts) == 2
+    assert isinstance(posts[0], Post)
+    assert posts[0].created >= date_limit
+    assert isinstance(posts[1], Post)
+    assert posts[1].created >= date_limit
