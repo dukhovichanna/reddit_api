@@ -6,7 +6,7 @@ from reddit_api.top_users import (
     extract_posts_from_response,
     get_posts
 )
-from reddit_api.models import Post, Response
+from reddit_api.models import Post
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
 
@@ -15,6 +15,7 @@ def test__get_date_limit__positive_number_input():
     result = get_date_limit(7).replace(microsecond=0)
     expected = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(days=7)
     assert result == expected
+
 
 def test__get_date_limit__allow_zero_as_input():
     result = get_date_limit(0).replace(microsecond=0)
@@ -26,7 +27,6 @@ def test__get_date_limit_raise_error_when_negative_input():
     limit_in_days = -7
     with pytest.raises(ValueError):
         get_date_limit(limit_in_days)
-
 
 
 def test__create_subreddit_url__allow_basic_alpha_name_without_digits():
@@ -67,8 +67,8 @@ def test__get_top_authors_with_count__top_commenters(list_of_comments):
     assert top_commenters == [('Jane', 15),('Jack', 3),('John', 2)]
 
 
-def test__extract_posts_from_response__return_list_of_posts(post_response):
-    result = extract_posts_from_response(post_response)
+def test__extract_posts_from_response__return_list_of_posts(regular_post_response):
+    result = extract_posts_from_response(regular_post_response)
     expected = [
         Post(
             author="throwawayhelp62525",
@@ -79,41 +79,34 @@ def test__extract_posts_from_response__return_list_of_posts(post_response):
     assert result == expected
 
 
-def test__extract_posts_from_response__post_contains_comments_url(post_response):
-    result = extract_posts_from_response(post_response)
+def test__extract_posts_from_response__post_contains_comments_url(regular_post_response):
+    result = extract_posts_from_response(regular_post_response)
     assert result[0].comments_url == 'https://oauth.reddit.com/r/books/comments/19cfrzw/my_comment/.json'
 
 
-def test_get_posts(mocker, reddit_client, post_response):  
-    # Create a real Reddit client instance
-    #reddit_client = RedditClient()
-
-    # Mocking the make_authenticated_request method
+def test__get_posts__assert_post_list_length(mocker, reddit_client, regular_post_response , response_with_post_outside_timelimit):  
     mocker.patch.object(reddit_client, 'make_authenticated_request', side_effect=[
-        post_response,
-        post_response,
-        Response(
-        after="t3_19a64l6",
-        children=[{
-                "data": {
-                    "created": 1643200000,
-                    "author": "throwawayhelp62525",
-                    "permalink": "/r/books/comments/19cfrzw/my_comment/"
-                }
-            }])])
-
-    # Set a date limit for testing
+        regular_post_response,
+        regular_post_response,
+        response_with_post_outside_timelimit
+        ])
     date_limit = datetime(2023, 1, 26, tzinfo=timezone.utc)
-
-    # Set a subreddit URL for testing
     subreddit_url = 'https://oauth.reddit.com/r/test/new'
 
-    # Call the function
     posts = get_posts(reddit_client, date_limit, subreddit_url)
-
-    # Assert the results
+ 
     assert len(posts) == 2
-    assert isinstance(posts[0], Post)
-    assert posts[0].created >= date_limit
-    assert isinstance(posts[1], Post)
-    assert posts[1].created >= date_limit
+
+
+def test__get_posts__assert_last_post_within_time_limit(mocker, reddit_client, regular_post_response , response_with_post_outside_timelimit):  
+    mocker.patch.object(reddit_client, 'make_authenticated_request', side_effect=[
+        regular_post_response,
+        regular_post_response,
+        response_with_post_outside_timelimit
+        ])
+    date_limit = datetime(2023, 1, 26, tzinfo=timezone.utc)
+    subreddit_url = 'https://oauth.reddit.com/r/test/new'
+
+    posts = get_posts(reddit_client, date_limit, subreddit_url)
+   
+    assert posts[-1].created >= date_limit

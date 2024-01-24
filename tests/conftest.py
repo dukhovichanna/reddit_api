@@ -1,5 +1,5 @@
 import pytest
-from reddit_api.models import Response, Post, Comment
+from reddit_api.models import Response, Comment
 from reddit_api.reddit_client import RedditClient
 from reddit_api.config import config
 from typing import Dict, Optional
@@ -15,6 +15,7 @@ def reddit_client():
         user_agent=config.user_agent,
         api_url=config.api_url
     )
+
 
 @pytest.fixture
 def make_comment():
@@ -41,15 +42,34 @@ def list_of_comments(make_comment):
             list_of_comments.append(make_comment())
     return list_of_comments
 
+
 @pytest.fixture
-def post_response():
-    return Response(
-        after="t3_19a64l6",
-        children=[{
+def make_post_response():
+    def inner(
+        after: str = 't3_19a64l6',
+        author: str = 'throwawayhelp62525',
+        permalink: str = '/r/books/comments/19cfrzw/my_comment/',
+        created: float = 1705876122.0
+    ):
+        return Response(
+            after=after,
+            children=[{
                 "data": {
-                    "created": 1705876122.0,
-                    "author": "throwawayhelp62525",
-                    "permalink": "/r/books/comments/19cfrzw/my_comment/"
+                    "created": created,
+                    "author": author,
+                    "permalink": permalink
                 }
             }]
-    )
+        )
+    
+    return inner
+
+@pytest.fixture
+def regular_post_response(make_post_response):
+    return make_post_response()
+
+@pytest.fixture
+def response_with_post_outside_timelimit(make_post_response):
+    return make_post_response(created=1643200000)
+    
+    
