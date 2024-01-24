@@ -72,7 +72,12 @@ def test__extract_posts_from_response__return_list_of_posts(post_response):
         Post(
             author="throwawayhelp62525",
             created=datetime(2024, 1, 21, 22, 28, 42, tzinfo=timezone.utc),
-            permalink="/r/books/comments/19cfrzw/is_it_me_or_is_dark_matter_by_blake_crouch_tooblah/"
+            permalink="/r/books/comments/19cfrzw/my_comment/"
         )
     ]
     assert result == expected
+
+
+def test__extract_posts_from_response__post_contains_comments_url(post_response):
+    result = extract_posts_from_response(post_response)
+    assert result[0].comments_url == 'https://oauth.reddit.com/r/books/comments/19cfrzw/my_comment/.json'

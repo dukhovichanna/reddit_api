@@ -49,7 +49,7 @@ def post_response():
                 "data": {
                     "created": 1705876122.0,
                     "author": "throwawayhelp62525",
-                    "permalink": "/r/books/comments/19cfrzw/is_it_me_or_is_dark_matter_by_blake_crouch_tooblah/"
+                    "permalink": "/r/books/comments/19cfrzw/my_comment/"
                 }
             }]
     )
