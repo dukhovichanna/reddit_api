@@ -2,8 +2,10 @@ import pytest
 from reddit_api.top_users import (
     get_date_limit,
     create_subreddit_url,
-    get_top_authors_with_count
+    get_top_authors_with_count,
+    extract_posts_from_response
 )
+from reddit_api.models import Post
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
 
@@ -62,3 +64,15 @@ def test__create_subreddit_url__raise_error_when_special_characters_in_name():
 def test__get_top_authors_with_count__top_commenters(list_of_comments):
     top_commenters = get_top_authors_with_count(list_of_comments)
     assert top_commenters == [('Jane', 15),('Jack', 3),('John', 2)]
+
+
+def test__extract_posts_from_response__return_list_of_posts(post_response):
+    result = extract_posts_from_response(post_response)
+    expected = [
+        Post(
+            author="throwawayhelp62525",
+            created=datetime(2024, 1, 21, 22, 28, 42, tzinfo=timezone.utc),
+            permalink="/r/books/comments/19cfrzw/is_it_me_or_is_dark_matter_by_blake_crouch_tooblah/"
+        )
+    ]
+    assert result == expected

@@ -40,3 +40,16 @@ def list_of_comments(make_comment):
         else:
             list_of_comments.append(make_comment())
     return list_of_comments
+
+@pytest.fixture
+def post_response():
+    return Response(
+        after="t3_19a64l6",
+        children=[{
+                "data": {
+                    "created": 1705876122.0,
+                    "author": "throwawayhelp62525",
+                    "permalink": "/r/books/comments/19cfrzw/is_it_me_or_is_dark_matter_by_blake_crouch_tooblah/"
+                }
+            }]
+    )

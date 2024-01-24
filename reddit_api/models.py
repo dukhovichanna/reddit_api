@@ -13,7 +13,6 @@ class Post(BaseModel):
     author: str
     created: datetime
     permalink: str
-    url: str
 
     @property
     def comments_url(self) -> str:
