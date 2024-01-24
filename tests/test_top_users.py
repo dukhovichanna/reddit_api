@@ -4,9 +4,10 @@ from reddit_api.top_users import (
     create_subreddit_url,
     get_top_authors_with_count,
     extract_posts_from_response,
+    extract_comments_from_response,
     get_posts
 )
-from reddit_api.models import Post
+from reddit_api.models import Post, Comment
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
 
@@ -110,3 +111,101 @@ def test__get_posts__assert_last_post_within_time_limit(mocker, reddit_client, r
     posts = get_posts(reddit_client, date_limit, subreddit_url)
    
     assert posts[-1].created >= date_limit
+
+
+def test__extract_comments_from_response__assert_list_has_two_comments():
+    comment_data = [
+        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
+        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }} 
+    ]
+    comments_list = []
+    extract_comments_from_response(comment_data, comments_list)
+
+    assert len(comments_list) == 2
+
+
+def test__extract_comments_from_response__assert_author_on_1st_comment():
+    comment_data = [
+        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
+        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }} 
+    ]
+    comments_list = []
+    extract_comments_from_response(comment_data, comments_list)
+    assert comments_list[0].author == 'user1'
+
+
+def test__extract_comments_from_response__assert_permalink_on_2nd_comment():
+    comment_data = [
+        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
+        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }} 
+    ]
+    comments_list = []
+    extract_comments_from_response(comment_data, comments_list)
+    assert comments_list[1].permalink == '/r/books/comments/2/'
+
+def test__extract_comments_from_response__assert_len_with_nested_comments():
+    comment_data = [
+        {
+            'data': {
+                'author': 'user1',
+                'permalink': '/r/books/comments/19cfrzw/my_comment/',
+                'replies': {
+                    'data': {
+                        'children': [
+                            {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
+                            {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }}
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+    comments_list = []
+    extract_comments_from_response(comment_data, comments_list)
+
+    assert len(comments_list) == 3
+
+def test__extract_comments_from_response__assert_parent_comment_has_replies():
+    comment_data = [
+        {
+            'data': {
+                'author': 'user1',
+                'permalink': '/r/books/comments/19cfrzw/my_comment/',
+                'replies': {
+                    'data': {
+                        'children': [
+                            {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
+                            {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }}
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+    comments_list = []
+    extract_comments_from_response(comment_data, comments_list)
+
+    assert comments_list[0].replies is not None
+
+def test__extract_comments_from_response__assert_3_comment_author():
+    comment_data = [
+        {
+            'data': {
+                'author': 'user1',
+                'permalink': '/r/books/comments/19cfrzw/my_comment/',
+                'replies': {
+                    'data': {
+                        'children': [
+                            {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
+                            {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }}
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+    comments_list = []
+    extract_comments_from_response(comment_data, comments_list)
+
+    assert comments_list[2].author == 'user2'
+
