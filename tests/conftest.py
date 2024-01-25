@@ -73,3 +73,25 @@ def response_with_post_outside_timelimit(make_post_response):
     return make_post_response(created=1643200000)
     
     
+@pytest.fixture
+def comment_data():
+    return [
+        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
+        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }} 
+    ]
+
+@pytest.fixture
+def comment_data_with_nested_replies(comment_data):
+    return [
+        {
+            'data': {
+                'author': 'user1',
+                'permalink': '/r/books/comments/19cfrzw/my_comment/',
+                'replies': {
+                    'data': {
+                        'children': comment_data
+                    }
+                }
+            }
+        }
+    ]
