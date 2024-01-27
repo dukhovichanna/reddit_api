@@ -1,13 +1,16 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN python -m pip install --upgrade pip
+RUN pip install -U pip setuptools wheel
+RUN pip install pdm
 
-COPY requirements.txt /app
+COPY pyproject.toml pdm.lock /app/
 
-RUN python -m pip install -r requirements.txt
+RUN pdm export --prod --without-hashes -f requirements -o requirements.txt; \
+    pip install -U -r requirements.txt
 
-COPY . /app
+COPY reddit_api/ /app/reddit_api
 
 CMD ["python", "-m", "reddit_api"]
+

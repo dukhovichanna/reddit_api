@@ -1,6 +1,11 @@
 from reddit_api.reddit_client import RedditClient
 from reddit_api.config import config
-from reddit_api.top_users import create_subreddit_url, get_top_users
+from reddit_api.top_users import (
+    create_subreddit_url,
+    get_posts,
+    get_date_limit,
+    get_top_authors_with_count,
+    get_comments)
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,14 +19,25 @@ def main() -> None:
         client_secret=config.secret,
         username=config.username,
         password=config.password,
-        user_agent=config.user_agent
+        user_agent=config.user_agent,
+        api_url=config.api_url
     )
 
     subreddit_name = 'books'
     subreddit_url = create_subreddit_url(subreddit_name)
-    top_posters, top_commenters = get_top_users(subreddit_url, reddit_client)
-    logger.info("Top Posters: %s", top_posters)
-    logger.info("Top Commenters: %s", top_commenters)
+    date_limit = get_date_limit(3)
+
+    posts = get_posts(
+        reddit_client=reddit_client,
+        date_limit=date_limit,
+        subreddit_url=subreddit_url
+        )
+    top_post_authors = get_top_authors_with_count(posts)
+    list_of_comments = get_comments(posts, reddit_client)
+
+    top_comment_authors = get_top_authors_with_count(list_of_comments)
+    logger.info("Top Posters: %s", top_post_authors)
+    logger.info("Top Commenters: %s", top_comment_authors)
 
 
 if __name__ == "__main__":
