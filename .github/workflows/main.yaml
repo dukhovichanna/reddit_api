@@ -27,10 +27,10 @@ jobs:
         run: pdm install 
 
       - name: Run Flake8
-        run: pdm run flake8 
+        run: flake8 
 
       - name: Run MyPy
-        run: pdm run mypy .
+        run: mypy .
 
       - name: Run pytest
         run: pytest

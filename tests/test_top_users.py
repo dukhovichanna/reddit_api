@@ -7,7 +7,7 @@ from reddit_api.top_users import (
     extract_comments_from_response,
     get_posts
 )
-from reddit_api.models import Post, Comment
+from reddit_api.models import Post
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
 
@@ -65,7 +65,7 @@ def test__create_subreddit_url__raise_error_when_special_characters_in_name():
 
 def test__get_top_authors_with_count__top_commenters(list_of_comments):
     top_commenters = get_top_authors_with_count(list_of_comments)
-    assert top_commenters == [('Jane', 15),('Jack', 3),('John', 2)]
+    assert top_commenters == [('Jane', 15), ('Jack', 3), ('John', 2)]
 
 
 def test__extract_posts_from_response__return_list_of_posts(regular_post_response):
@@ -82,10 +82,16 @@ def test__extract_posts_from_response__return_list_of_posts(regular_post_respons
 
 def test__extract_posts_from_response__post_contains_comments_url(regular_post_response):
     result = extract_posts_from_response(regular_post_response)
-    assert result[0].comments_url == 'https://oauth.reddit.com/r/books/comments/19cfrzw/my_comment/.json'
+    expected = 'https://oauth.reddit.com/r/books/comments/19cfrzw/my_comment/.json'
+    assert result[0].comments_url == expected
 
 
-def test__get_posts__assert_post_list_length(mocker, reddit_client, regular_post_response , response_with_post_outside_timelimit):  
+def test__get_posts__assert_post_list_length(
+        mocker,
+        reddit_client,
+        regular_post_response,
+        response_with_post_outside_timelimit):
+
     mocker.patch.object(reddit_client, 'make_authenticated_request', side_effect=[
         regular_post_response,
         regular_post_response,
@@ -95,11 +101,16 @@ def test__get_posts__assert_post_list_length(mocker, reddit_client, regular_post
     subreddit_url = 'https://oauth.reddit.com/r/test/new'
 
     posts = get_posts(reddit_client, date_limit, subreddit_url)
- 
+
     assert len(posts) == 2
 
 
-def test__get_posts__assert_last_post_within_time_limit(mocker, reddit_client, regular_post_response , response_with_post_outside_timelimit):  
+def test__get_posts__assert_last_post_within_time_limit(
+        mocker,
+        reddit_client,
+        regular_post_response,
+        response_with_post_outside_timelimit):
+
     mocker.patch.object(reddit_client, 'make_authenticated_request', side_effect=[
         regular_post_response,
         regular_post_response,
@@ -109,7 +120,7 @@ def test__get_posts__assert_last_post_within_time_limit(mocker, reddit_client, r
     subreddit_url = 'https://oauth.reddit.com/r/test/new'
 
     posts = get_posts(reddit_client, date_limit, subreddit_url)
-   
+
     assert posts[-1].created >= date_limit
 
 
@@ -131,18 +142,23 @@ def test__extract_comments_from_response__assert_permalink_on_2nd_comment(commen
     extract_comments_from_response(comment_data, comments_list)
     assert comments_list[1].permalink == '/r/books/comments/2/'
 
-def test__extract_comments_from_response__assert_len_with_nested_comments(comment_data_with_nested_replies):
+
+def test__extract_comments_from_response__assert_len_with_nested_comments(
+        comment_data_with_nested_replies):
     comments_list = []
     extract_comments_from_response(comment_data_with_nested_replies, comments_list)
     assert len(comments_list) == 3
 
-def test__extract_comments_from_response__assert_parent_comment_has_replies(comment_data_with_nested_replies):
+
+def test__extract_comments_from_response__assert_parent_comment_has_replies(
+        comment_data_with_nested_replies):
     comments_list = []
     extract_comments_from_response(comment_data_with_nested_replies, comments_list)
     assert comments_list[0].replies is not None
 
-def test__extract_comments_from_response__assert_3_comment_author(comment_data_with_nested_replies):
+
+def test__extract_comments_from_response__assert_3_comment_author(
+        comment_data_with_nested_replies):
     comments_list = []
     extract_comments_from_response(comment_data_with_nested_replies, comments_list)
     assert comments_list[2].author == 'user2'
-

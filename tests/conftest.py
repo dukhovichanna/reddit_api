@@ -28,6 +28,7 @@ def make_comment():
 
     return inner
 
+
 @pytest.fixture
 def list_of_comments(make_comment):
     list_of_comments=[]
@@ -61,24 +62,26 @@ def make_post_response():
                 }
             }]
         )
-    
     return inner
+
 
 @pytest.fixture
 def regular_post_response(make_post_response):
     return make_post_response()
 
+
 @pytest.fixture
 def response_with_post_outside_timelimit(make_post_response):
     return make_post_response(created=1643200000)
-    
-    
+
+
 @pytest.fixture
 def comment_data():
     return [
-        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
-        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }} 
+        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/'}},
+        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/'}}
     ]
+
 
 @pytest.fixture
 def comment_data_with_nested_replies(comment_data):
