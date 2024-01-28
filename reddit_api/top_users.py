@@ -3,7 +3,7 @@ from reddit_api.models import Post, Comment, Response
 from reddit_api.errors import InvalidSubredditNameError
 from datetime import datetime, timedelta, timezone
 from collections import Counter
-from typing import List, Dict, Any
+from typing import Any
 import re
 import logging
 
@@ -23,11 +23,11 @@ def create_subreddit_url(subreddit_name: str) -> str:
     return f'https://oauth.reddit.com/r/{subreddit_name}/new'
 
 
-def extract_posts_from_response(response: Response) -> List[Post]:
+def extract_posts_from_response(response: Response) -> list[Post]:
     return [Post(**item['data']) for item in response.children]
 
 
-def get_posts(reddit_client: RedditClient, date_limit: datetime, subreddit_url: str) -> List[Post]:
+def get_posts(reddit_client: RedditClient, date_limit: datetime, subreddit_url: str) -> list[Post]:
     reached_date_limit = False
     list_of_posts = []
     params = {'t': 'all', 'limit': 100}
@@ -47,8 +47,8 @@ def get_posts(reddit_client: RedditClient, date_limit: datetime, subreddit_url: 
 
 
 def extract_comments_from_response(
-        comment_data: List[Dict[str, Any]],
-        comments_list: List[Comment]) -> None:
+        comment_data: list[dict[str, Any]],
+        comments_list: list[Comment]) -> None:
     for comment_info in comment_data:
         if 'author' in comment_info['data']:
             comment = Comment(**comment_info['data'])
@@ -57,8 +57,8 @@ def extract_comments_from_response(
                 extract_comments_from_response(comment.replies['data']['children'], comments_list)
 
 
-def get_comments(posts: List[Post], reddit_client: RedditClient) -> List[Comment]:
-    list_of_comments: List[Comment] = []
+def get_comments(posts: list[Post], reddit_client: RedditClient) -> list[Comment]:
+    list_of_comments: list[Comment] = []
     count = 1
     for post in posts:
         comments_response = reddit_client.make_authenticated_request(post.comments_url)
@@ -69,8 +69,8 @@ def get_comments(posts: List[Post], reddit_client: RedditClient) -> List[Comment
 
 
 def get_top_authors_with_count(
-        comments:  List[Post] | List[Comment],
-        top_n: int = 3) -> List[tuple]:
+        comments:  list[Post] | list[Comment],
+        top_n: int = 3) -> list[tuple]:
 
     author_counts = Counter(comment.author for comment in comments)
     top_authors = author_counts.most_common(top_n)

@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List
+from typing import Optional
 from pydantic import BaseModel, validator
 from datetime import datetime
 from reddit_api.config import config
@@ -6,7 +6,7 @@ from reddit_api.config import config
 
 class Response(BaseModel):
     after: str | None
-    children: List
+    children: list
 
 
 class Post(BaseModel):
@@ -22,7 +22,7 @@ class Post(BaseModel):
 class Comment(BaseModel):
     author: str
     permalink: str
-    replies: Optional[Dict]
+    replies: Optional[dict]
 
     @validator("replies", pre=True, always=True)
     def convert_empty_string_to_none(cls: BaseModel, value: str) -> str | None:

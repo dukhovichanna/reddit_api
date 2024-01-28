@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from reddit_api.models import Response
-from typing import Any, Dict
+from typing import Any
 import requests
 import logging
 
@@ -36,7 +36,7 @@ class RedditClient:
 
     def make_authenticated_request(
             self, url: str,
-            params: Dict[str, Any] | None = None) -> Response:
+            params: dict[str, Any] | None = None) -> Response:
 
         headers = {"User-Agent": self.user_agent, "Authorization": f"bearer {self.get_token()}"}
 
