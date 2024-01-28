@@ -20,7 +20,7 @@ def test__get_token__failure(reddit_client):
 
 
 def test__make_authenticated_request__correctly_parses_response(reddit_client):
-    with patch('reddit_api.reddit_client.requests.get') as mock_get, \
+    with patch('requests.get') as mock_get, \
             patch('reddit_api.reddit_client.RedditClient.get_token') as mock_get_token:
         mock_get_token.return_value = "mock_token"
         mock_response = Mock()
