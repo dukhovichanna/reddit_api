@@ -33,4 +33,4 @@ jobs:
         run: pdm run mypy .
 
       - name: Run pytest
-        run: pytest
+        run: pdm run pytest
