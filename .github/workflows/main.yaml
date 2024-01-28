@@ -24,15 +24,16 @@ jobs:
         uses: pdm-project/setup-pdm@v3
 
       - name: Install dependencies
+        id: install-dependencies
         run: pdm install 
 
       - name: Run Flake8
         run: pdm run flake8
 
       - name: Run MyPy
-        if: always()
+        if: success('install-dependencies')
         run: pdm run mypy .
 
       - name: Run pytest
-        if: always()
+        if: success('install-dependencies')
         run: pdm run pytest
