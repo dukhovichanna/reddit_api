@@ -13,6 +13,6 @@ class RedditAuthenticationError(Exception):
 
 
 class RedditTimeoutError(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         self.message = ("Request timed out.")
         super().__init__(self.message)
