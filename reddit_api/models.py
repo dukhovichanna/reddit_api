@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from datetime import datetime
 
 
@@ -23,7 +23,7 @@ class Comment(BaseModel):
     permalink: str
     replies: Optional[dict]
 
-    @validator("replies", pre=True, always=True)
+    @field_validator("replies", mode="before")
     def convert_empty_string_to_none(cls: BaseModel, value: str) -> str | None:
         if value == '':
             return None
