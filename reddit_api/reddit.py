@@ -1,6 +1,6 @@
 from reddit_api.models import Response
 from reddit_api.models import Post, Comment
-from typing import Any, Dict
+from typing import Any
 import requests
 import logging
 
@@ -87,8 +87,9 @@ class RedditClient:
             logger.error(f"Error making authenticated request: {e}")
             raise
 
+
     def extract_comments_from_response(self,
-        comment_data: list[Dict[str, Any]],
+        comment_data: list[dict[str, Any]],
         comments_list: list[Comment]) -> None:
         for comment_info in comment_data:
             if 'author' in comment_info['data']:
