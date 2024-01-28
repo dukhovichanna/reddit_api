@@ -30,7 +30,7 @@ jobs:
         run: pdm run flake8 
 
       - name: Run MyPy
-        run: mypy .
+        run: pdm run mypy .
 
       - name: Run pytest
         run: pytest
