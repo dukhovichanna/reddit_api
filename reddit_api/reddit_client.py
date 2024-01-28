@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from reddit_api.models import Response
+from reddit_api.errors import RedditAuthenticationError, RedditTimeoutError
 from typing import Any
 import requests
 import logging
@@ -41,12 +42,19 @@ class RedditClient:
         headers = {"User-Agent": self.user_agent, "Authorization": f"bearer {self.get_token()}"}
 
         try:
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(url, headers=headers, params=params, timeout=5)
             response.raise_for_status()
             if isinstance(response.json(), list):
                 return Response(**response.json()[1]['data'])
             else:
                 return Response(**response.json()['data'])
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error making authenticated request: {e}")
-            raise
+        except requests.exceptions.HTTPError as http_err:
+            if http_err.response.status_code == 401:
+                logger.error("Authentication failed. Invalid token or credentials.")
+                raise RedditAuthenticationError() from http_err
+            elif http_err.response.status_code == 504:
+                logger.error("Request timed out.")
+                raise RedditTimeoutError() from http_err
+            else:
+                logger.error(f"Error making authenticated request: {http_err}")
+                raise
