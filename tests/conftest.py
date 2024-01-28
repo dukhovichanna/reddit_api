@@ -31,7 +31,7 @@ def make_comment():
 
 @pytest.fixture
 def list_of_comments(make_comment):
-    list_of_comments=[]
+    list_of_comments = []
     for i in range(20):
         if i % 4:
             list_of_comments.append(make_comment(author='Jane', replies=''))
