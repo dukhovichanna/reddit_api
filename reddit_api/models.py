@@ -1,7 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, validator
 from datetime import datetime
-from reddit_api.config import config
 
 
 class Response(BaseModel):
@@ -16,7 +15,7 @@ class Post(BaseModel):
 
     @property
     def comments_url(self) -> str:
-        return f"{config.oauth_url}{self.permalink}.json"
+        return f"https://oauth.reddit.com{self.permalink}.json"
 
 
 class Comment(BaseModel):

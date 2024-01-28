@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import patch, Mock
-from reddit_api.models import Response
 import requests
 
 

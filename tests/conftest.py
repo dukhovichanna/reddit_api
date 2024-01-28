@@ -3,6 +3,7 @@ from reddit_api.models import Response, Comment
 from reddit_api.reddit_client import RedditClient
 from typing import Optional
 
+
 @pytest.fixture
 def reddit_client_id(faker):
     return faker.pystr()
