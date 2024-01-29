@@ -69,9 +69,9 @@ def get_comments(posts: list[Post], reddit_client: RedditClient) -> list[Comment
 
 
 def get_top_authors_with_count(
-        comments:  list[Post] | list[Comment],
+        items:  list[Post] | list[Comment],
         top_n: int = 3) -> list[tuple]:
 
-    author_counts = Counter(comment.author for comment in comments)
+    author_counts = Counter(item.author for item in items)
     top_authors = author_counts.most_common(top_n)
     return top_authors

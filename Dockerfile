@@ -13,15 +13,6 @@ RUN pdm export --prod --without-hashes -f requirements -o requirements.txt; \
 
 COPY reddit_api/ /app/reddit_api
 
-COPY crontab /etc/cron.d/crontab
 
-COPY run.sh  /app/
-
-RUN chmod 0644 /etc/cron.d/crontab
-
-RUN crontab /etc/cron.d/crontab
-
-
-ENTRYPOINT [ "/app/run.sh" ]
-CMD ["cron","-f", "-l", "2"]
+CMD ["python", "-m", "reddit_api"]
 
