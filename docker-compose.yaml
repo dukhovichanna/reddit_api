@@ -5,9 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./reddit_api:/app/reddit_api
     env_file:
       - .env
-    #command: ["cron", "-f"]
-    command: ["python", "-m", "reddit_api"]
+    command: ["cron", "-f"]
