@@ -11,6 +11,7 @@ import time
 
 logger = logging.getLogger(__name__)
 
+
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
 
@@ -42,6 +43,6 @@ def main() -> None:
 
         time.sleep(300)
 
-        
+
 if __name__ == "__main__":
     main()

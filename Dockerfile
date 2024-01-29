@@ -13,6 +13,5 @@ RUN pdm export --prod --without-hashes -f requirements -o requirements.txt; \
 
 COPY reddit_api/ /app/reddit_api
 
-
 CMD ["python", "-m", "reddit_api"]
 
