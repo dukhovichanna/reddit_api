@@ -1,12 +1,11 @@
-from typing import Optional, Dict, List
-from pydantic import BaseModel, validator
+from typing import Optional
+from pydantic import BaseModel, field_validator
 from datetime import datetime
-from reddit_api.config import config
 
 
 class Response(BaseModel):
     after: str | None
-    children: List
+    children: list
 
 
 class Post(BaseModel):
@@ -16,15 +15,15 @@ class Post(BaseModel):
 
     @property
     def comments_url(self) -> str:
-        return f"{config.oauth_url}{self.permalink}.json"
+        return f"https://oauth.reddit.com{self.permalink}.json"
 
 
 class Comment(BaseModel):
     author: str
     permalink: str
-    replies: Optional[Dict]
+    replies: Optional[dict]
 
-    @validator("replies", pre=True, always=True)
+    @field_validator("replies", mode="before")
     def convert_empty_string_to_none(cls: BaseModel, value: str) -> str | None:
         if value == '':
             return None

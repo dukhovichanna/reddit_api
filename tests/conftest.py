@@ -1,19 +1,53 @@
 import pytest
 from reddit_api.models import Response, Comment
 from reddit_api.reddit_client import RedditClient
-from reddit_api.config import config
-from typing import Dict, Optional
+from typing import Optional
 
 
 @pytest.fixture
-def reddit_client():
+def reddit_client_id(faker):
+    return faker.pystr()
+
+
+@pytest.fixture
+def reddit_client_secret(faker):
+    return faker.pystr()
+
+
+@pytest.fixture
+def reddit_username(faker):
+    return faker.pystr()
+
+
+@pytest.fixture
+def reddit_password(faker):
+    return faker.pystr()
+
+
+@pytest.fixture
+def reddit_user_agent(faker):
+    return faker.pystr()
+
+
+@pytest.fixture
+def reddit_api_url(faker):
+    return f'https://{faker.pystr()}'
+
+
+@pytest.fixture
+def reddit_client(reddit_client_id,
+                  reddit_client_secret,
+                  reddit_username,
+                  reddit_password,
+                  reddit_user_agent,
+                  reddit_api_url):
     return RedditClient(
-        client_id=config.client_id,
-        client_secret=config.secret,
-        username=config.username,
-        password=config.password,
-        user_agent=config.user_agent,
-        api_url=config.api_url
+        client_id=reddit_client_id,
+        client_secret=reddit_client_secret,
+        username=reddit_username,
+        password=reddit_password,
+        user_agent=reddit_user_agent,
+        api_url=reddit_api_url
     )
 
 
@@ -22,15 +56,16 @@ def make_comment():
     def inner(
         author: str = 'John',
         permalink: str = '/r/books/comments/19cfrzw/user_comment',
-        replies: Optional[Dict] = {"data": {"after": "a1s2d3f4", "children": [1, 2]}}
+        replies: Optional[dict] = {"data": {"after": "a1s2d3f4", "children": [1, 2]}}
     ):
         return Comment(author=author, permalink=permalink, replies=replies)
 
     return inner
 
+
 @pytest.fixture
 def list_of_comments(make_comment):
-    list_of_comments=[]
+    list_of_comments = []
     for i in range(20):
         if i % 4:
             list_of_comments.append(make_comment(author='Jane', replies=''))
@@ -61,24 +96,26 @@ def make_post_response():
                 }
             }]
         )
-    
     return inner
+
 
 @pytest.fixture
 def regular_post_response(make_post_response):
     return make_post_response()
 
+
 @pytest.fixture
 def response_with_post_outside_timelimit(make_post_response):
     return make_post_response(created=1643200000)
-    
-    
+
+
 @pytest.fixture
 def comment_data():
     return [
-        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/' }},
-        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/' }} 
+        {'data': {'author': 'user1', 'replies': None, 'permalink': '/r/books/comments/1/'}},
+        {'data': {'author': 'user2', 'replies': None, 'permalink': '/r/books/comments/2/'}}
     ]
+
 
 @pytest.fixture
 def comment_data_with_nested_replies(comment_data):

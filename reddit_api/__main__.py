@@ -7,6 +7,7 @@ from reddit_api.top_users import (
     get_top_authors_with_count,
     get_comments)
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -27,17 +28,20 @@ def main() -> None:
     subreddit_url = create_subreddit_url(subreddit_name)
     date_limit = get_date_limit(3)
 
-    posts = get_posts(
-        reddit_client=reddit_client,
-        date_limit=date_limit,
-        subreddit_url=subreddit_url
+    while True:
+        posts = get_posts(
+            reddit_client=reddit_client,
+            date_limit=date_limit,
+            subreddit_url=subreddit_url
         )
-    top_post_authors = get_top_authors_with_count(posts)
-    list_of_comments = get_comments(posts, reddit_client)
+        top_post_authors = get_top_authors_with_count(posts)
+        list_of_comments = get_comments(posts, reddit_client)
 
-    top_comment_authors = get_top_authors_with_count(list_of_comments)
-    logger.info("Top Posters: %s", top_post_authors)
-    logger.info("Top Commenters: %s", top_comment_authors)
+        top_comment_authors = get_top_authors_with_count(list_of_comments)
+        logger.info("Top Posters: %s", top_post_authors)
+        logger.info("Top Commenters: %s", top_comment_authors)
+
+        time.sleep(300)
 
 
 if __name__ == "__main__":
