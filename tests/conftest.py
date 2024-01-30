@@ -5,49 +5,14 @@ from typing import Optional
 
 
 @pytest.fixture
-def reddit_client_id(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_client_secret(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_username(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_password(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_user_agent(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_api_url(faker):
-    return f'https://{faker.pystr()}'
-
-
-@pytest.fixture
-def reddit_client(reddit_client_id,
-                  reddit_client_secret,
-                  reddit_username,
-                  reddit_password,
-                  reddit_user_agent,
-                  reddit_api_url):
+def reddit_client(faker):
     return RedditClient(
-        client_id=reddit_client_id,
-        client_secret=reddit_client_secret,
-        username=reddit_username,
-        password=reddit_password,
-        user_agent=reddit_user_agent,
-        api_url=reddit_api_url
+        client_id=faker.pystr(),
+        client_secret=faker.pystr(),
+        username=faker.pystr(),
+        password=faker.pystr(),
+        user_agent=faker.pystr(),
+        api_url=f'https://{faker.pystr()}'
     )
 
 

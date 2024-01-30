@@ -6,13 +6,17 @@ class InvalidSubredditNameError(Exception):
         super().__init__(self.message)
 
 
-class RedditAuthenticationError(Exception):
-    def __init__(self) -> None:
-        self.message = ("Authentication failed. Invalid token or credentials.")
-        super().__init__(self.message)
+class RedditClientError(Exception):
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(reason)
 
 
-class RedditTimeoutError(Exception):
+class RedditAuthenticationError(RedditClientError):
     def __init__(self) -> None:
-        self.message = ("Request timed out.")
-        super().__init__(self.message)
+        super().__init__("Authentication failed. Invalid token or credentials.")
+
+
+class RedditTimeoutError(RedditClientError):
+    def __init__(self) -> None:
+        super().__init__("Request timed out.")

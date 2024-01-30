@@ -2,9 +2,6 @@ version: '3'
 
 services:
   reddit_api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     env_file:
       - .env
-    command: ["python", "-m", "reddit_api"]

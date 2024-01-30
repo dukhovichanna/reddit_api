@@ -42,7 +42,7 @@ class RedditClient:
         headers = {"User-Agent": self.user_agent, "Authorization": f"bearer {self.get_token()}"}
 
         try:
-            response = requests.get(url, headers=headers, params=params, timeout=5)
+            response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
             if isinstance(response.json(), list):
                 return Response(**response.json()[1]['data'])
@@ -50,11 +50,8 @@ class RedditClient:
                 return Response(**response.json()['data'])
         except requests.exceptions.HTTPError as http_err:
             if http_err.response.status_code == 401:
-                logger.error("Authentication failed. Invalid token or credentials.")
                 raise RedditAuthenticationError() from http_err
             elif http_err.response.status_code == 504:
-                logger.error("Request timed out.")
                 raise RedditTimeoutError() from http_err
             else:
-                logger.error(f"Error making authenticated request: {http_err}")
                 raise

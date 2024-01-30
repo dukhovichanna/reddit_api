@@ -30,9 +30,7 @@ jobs:
         run: pdm run flake8
 
       - name: Run MyPy
-        if: always()
         run: pdm run mypy .
 
       - name: Run pytest
-        if: always()
         run: pdm run pytest

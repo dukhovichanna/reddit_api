@@ -40,8 +40,9 @@ def main() -> None:
         top_comment_authors = get_top_authors_with_count(list_of_comments)
         logger.info("Top Posters: %s", top_post_authors)
         logger.info("Top Commenters: %s", top_comment_authors)
+        logger.info('Done.')
 
-        time.sleep(300)
+        time.sleep(config.timeout)
 
 
 if __name__ == "__main__":
