@@ -11,8 +11,7 @@ def reddit_client(faker):
         client_secret=faker.pystr(),
         username=faker.pystr(),
         password=faker.pystr(),
-        user_agent=faker.pystr(),
-        api_url=f'https://{faker.pystr()}'
+        user_agent=faker.pystr()
     )
 
 

@@ -10,8 +10,6 @@ class Config:
     client_id: str
     client_name: str
     user_agent: str
-    api_url: str
-    oauth_url: str
     timeout: int
 
 
@@ -23,8 +21,6 @@ def load_from_env() -> Config:
         client_id=os.environ['REDDIT_CLIENT_ID'],
         client_name=os.environ['REDDIT_CLIENT_NAME'],
         user_agent=os.environ['REDDIT_USER_AGENT'],
-        api_url=os.environ['REDDIT_API_URL'],
-        oauth_url=os.environ['REDDIT_OAUTH_URL'],
         timeout=int(os.environ['TIMEOUT'])
     )
 

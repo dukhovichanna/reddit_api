@@ -31,7 +31,6 @@ Follow these steps to set up and run the script:
     USERNAME=<your-username>
     PASSWORD=<your-password>
     USER_AGENT=<your-user-agent>
-    API_URL=<your-api-url>
     TIMEOUT=<your-timeout>
     ```
 

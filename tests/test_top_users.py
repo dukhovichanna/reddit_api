@@ -81,12 +81,6 @@ def test__extract_posts_from_response__return_list_of_posts(regular_post_respons
     assert result == expected
 
 
-def test__extract_posts_from_response__post_contains_comments_url(regular_post_response):
-    result = extract_posts_from_response(regular_post_response)
-    expected = 'https://oauth.reddit.com/r/books/comments/19cfrzw/my_comment/.json'
-    assert result[0].comments_url == expected
-
-
 def test__get_posts__assert_post_list_length(
         mocker,
         reddit_client,
@@ -125,7 +119,7 @@ def test__get_posts__assert_last_post_within_time_limit(
     assert posts[-1].created >= date_limit
 
 
-def test__extract_comments_from_response__assert_list_has_two_comments(comment_data):
+def test__extract_comments_from_response__assert_comment_response_with_2_items_yields_2_comments(comment_data):
     comments_list = []
     extract_comments_from_response(comment_data, comments_list)
 
@@ -170,4 +164,4 @@ def test__get_comments__empty_post_list_return_empty_comment_list(reddit_client)
     list_of_comments = get_comments(empty_posts_list, reddit_client)
     assert len(list_of_comments) == 0
 
-# TODO: get comments - what if every post has only one comment
+

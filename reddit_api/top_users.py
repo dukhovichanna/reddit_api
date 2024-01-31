@@ -61,7 +61,8 @@ def get_comments(posts: list[Post], reddit_client: RedditClient) -> list[Comment
     list_of_comments: list[Comment] = []
     count = 1
     for post in posts:
-        comments_response = reddit_client.make_authenticated_request(post.comments_url)
+        comments_url = f"https://oauth.reddit.com{post.permalink}.json"
+        comments_response = reddit_client.make_authenticated_request(comments_url)
         extract_comments_from_response(comments_response.children, list_of_comments)
         logger.info("Processed %s post out of %s", count, len(posts))
         count += 1

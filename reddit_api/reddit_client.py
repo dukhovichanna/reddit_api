@@ -15,7 +15,6 @@ class RedditClient:
     username: str
     password: str
     user_agent: str
-    api_url: str
 
     def get_token(self) -> str:
         logger.debug("Getting token...")
@@ -26,10 +25,10 @@ class RedditClient:
             "password": self.password
         }
         auth = requests.auth.HTTPBasicAuth(self.client_id, self.client_secret)
+        url = 'https://www.reddit.com/api/v1/access_token'
 
         try:
-            response = requests.post(url=self.api_url, data=data, headers=headers, auth=auth)
-            response.raise_for_status()
+            response = requests.post(url=url, data=data, headers=headers, auth=auth)
             return response.json()["access_token"]
         except requests.exceptions.RequestException as e:
             logger.error(f"Error getting token: {e}")

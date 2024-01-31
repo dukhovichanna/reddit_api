@@ -1,6 +1,5 @@
 import pytest
 from reddit_api.errors import RedditAuthenticationError, RedditTimeoutError
-from requests_mock import Mocker
 from unittest.mock import patch, Mock
 import requests
 
