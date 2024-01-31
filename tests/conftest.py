@@ -26,7 +26,7 @@ def make_comment():
         return Comment(
             author=author or 'John',
             permalink=permalink or '/r/books/comments/19cfrzw/user_comment',
-            replies=replies or {"data": {"after": "a1s2d3f4", "children": [1, 2]}})
+            replies=replies or '')
 
     return inner
 
