@@ -1,6 +1,7 @@
 import pytest
 from reddit_api.models import Response, Comment
 from reddit_api.reddit_client import RedditClient
+from unittest.mock import patch
 from typing import Any
 
 
@@ -109,3 +110,15 @@ def comment_data_with_nested_replies(comment_data):
             }
         }
     ]
+
+
+@pytest.fixture
+def requests_get_mock():
+    with patch('requests.get') as mock:
+        yield mock
+
+
+@pytest.fixture
+def requests_post_mock():
+    with patch('requests.post') as mock:
+        yield mock

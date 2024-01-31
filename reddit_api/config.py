@@ -21,7 +21,7 @@ def load_from_env() -> Config:
         client_id=os.environ['REDDIT_CLIENT_ID'],
         client_name=os.environ['REDDIT_CLIENT_NAME'],
         user_agent=os.environ['REDDIT_USER_AGENT'],
-        timeout=int(os.environ['TIMEOUT'])
+        timeout=int(os.environ['REDDIT_TIMEOUT'])
     )
 
 
