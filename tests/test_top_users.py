@@ -5,7 +5,8 @@ from reddit_api.top_users import (
     get_top_authors_with_count,
     extract_posts_from_response,
     extract_comments_from_response,
-    get_posts
+    get_posts,
+    get_comments
 )
 from reddit_api.models import Post
 from reddit_api.errors import InvalidSubredditNameError
@@ -162,3 +163,11 @@ def test__extract_comments_from_response__assert_3_comment_author(
     comments_list = []
     extract_comments_from_response(comment_data_with_nested_replies, comments_list)
     assert comments_list[2].author == 'user2'
+
+
+def test__get_comments__empty_post_list_return_empty_comment_list(reddit_client):
+    empty_posts_list = []
+    list_of_comments = get_comments(empty_posts_list, reddit_client)
+    assert len(list_of_comments) == 0
+
+# TODO: get comments - what if every post has only one comment

@@ -1,7 +1,7 @@
 import pytest
 from reddit_api.models import Response, Comment
 from reddit_api.reddit_client import RedditClient
-from typing import Optional
+from typing import Any
 
 
 @pytest.fixture
@@ -19,11 +19,14 @@ def reddit_client(faker):
 @pytest.fixture
 def make_comment():
     def inner(
-        author: str = 'John',
-        permalink: str = '/r/books/comments/19cfrzw/user_comment',
-        replies: Optional[dict] = {"data": {"after": "a1s2d3f4", "children": [1, 2]}}
+        author: str | None = None,
+        permalink: str | None = None,
+        replies: dict[str, Any] | None = None
     ):
-        return Comment(author=author, permalink=permalink, replies=replies)
+        return Comment(
+            author=author or 'John',
+            permalink=permalink or '/r/books/comments/19cfrzw/user_comment',
+            replies=replies or {"data": {"after": "a1s2d3f4", "children": [1, 2]}})
 
     return inner
 
