@@ -64,8 +64,8 @@ def test__create_subreddit_url__raise_error_when_special_characters_in_name():
         create_subreddit_url(subreddit_name)
 
 
-def test__get_top_authors_with_count__top_commenters(list_of_comments):
-    top_commenters = get_top_authors_with_count(list_of_comments)
+def test__get_top_authors_with_count__top_commenters(list_of_comments_with_preset_data):
+    top_commenters = get_top_authors_with_count(list_of_comments_with_preset_data)
     assert top_commenters == [('Jane', 15), ('Jack', 3), ('John', 2)]
 
 

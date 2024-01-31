@@ -29,20 +29,30 @@ def make_comment():
 
     return inner
 
+@pytest.fixture
+def make_many_comments(make_comment):
+    def inner(
+        users: dict[str, int] | None = None, 
+        unique: int = 0,
+    ):
+        comments = []
+        for user, comments_count in users.items():
+            for _ in range(comments_count):
+                comment = make_comment(author=user, replies='')
+                comments.append(comment)
+
+        for _ in range(unique):
+            comment = make_comment()
+            comments.append(comment)
+
+        return comments
+    return inner
 
 @pytest.fixture
-def list_of_comments(make_comment):
-    list_of_comments = []
-    for i in range(20):
-        if i % 4:
-            list_of_comments.append(make_comment(author='Jane', replies=''))
-        elif i % 3:
-            list_of_comments.append(make_comment(author='Jack'))
-        elif i % 2:
-            list_of_comments.append(make_comment(author='Jim'))
-        else:
-            list_of_comments.append(make_comment())
-    return list_of_comments
+def list_of_comments_with_preset_data(make_many_comments):
+    return make_many_comments(
+        users={'Jane': 15, 'Jack': 3, 'John': 2}
+    )
 
 
 @pytest.fixture
