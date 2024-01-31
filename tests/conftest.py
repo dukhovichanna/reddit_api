@@ -30,10 +30,11 @@ def make_comment():
 
     return inner
 
+
 @pytest.fixture
 def make_many_comments(make_comment):
     def inner(
-        users: dict[str, int] | None = None, 
+        users: dict[str, int] | None = None,
         unique: int = 0,
     ):
         comments = []
@@ -48,6 +49,7 @@ def make_many_comments(make_comment):
 
         return comments
     return inner
+
 
 @pytest.fixture
 def list_of_comments_with_preset_data(make_many_comments):
@@ -121,4 +123,10 @@ def requests_get_mock():
 @pytest.fixture
 def requests_post_mock():
     with patch('requests.post') as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_get_token():
+    with patch('reddit_api.reddit_client.RedditClient.get_token') as mock:
         yield mock
