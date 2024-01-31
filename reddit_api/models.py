@@ -13,10 +13,6 @@ class Post(BaseModel):
     created: datetime
     permalink: str
 
-    @property
-    def comments_url(self) -> str:
-        return f"https://oauth.reddit.com{self.permalink}.json"
-
 
 class Comment(BaseModel):
     author: str

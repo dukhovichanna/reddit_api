@@ -1,81 +1,58 @@
 import pytest
 from reddit_api.models import Response, Comment
 from reddit_api.reddit_client import RedditClient
-from typing import Optional
+from typing import Any
 
 
 @pytest.fixture
-def reddit_client_id(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_client_secret(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_username(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_password(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_user_agent(faker):
-    return faker.pystr()
-
-
-@pytest.fixture
-def reddit_api_url(faker):
-    return f'https://{faker.pystr()}'
-
-
-@pytest.fixture
-def reddit_client(reddit_client_id,
-                  reddit_client_secret,
-                  reddit_username,
-                  reddit_password,
-                  reddit_user_agent,
-                  reddit_api_url):
+def reddit_client(faker):
     return RedditClient(
-        client_id=reddit_client_id,
-        client_secret=reddit_client_secret,
-        username=reddit_username,
-        password=reddit_password,
-        user_agent=reddit_user_agent,
-        api_url=reddit_api_url
+        client_id=faker.pystr(),
+        client_secret=faker.pystr(),
+        username=faker.pystr(),
+        password=faker.pystr(),
+        user_agent=faker.pystr()
     )
 
 
 @pytest.fixture
 def make_comment():
     def inner(
-        author: str = 'John',
-        permalink: str = '/r/books/comments/19cfrzw/user_comment',
-        replies: Optional[dict] = {"data": {"after": "a1s2d3f4", "children": [1, 2]}}
+        author: str | None = None,
+        permalink: str | None = None,
+        replies: dict[str, Any] | None = None
     ):
-        return Comment(author=author, permalink=permalink, replies=replies)
+        return Comment(
+            author=author or 'John',
+            permalink=permalink or '/r/books/comments/19cfrzw/user_comment',
+            replies=replies or {"data": {"after": "a1s2d3f4", "children": [1, 2]}})
 
     return inner
 
+@pytest.fixture
+def make_many_comments(make_comment):
+    def inner(
+        users: dict[str, int] | None = None, 
+        unique: int = 0,
+    ):
+        comments = []
+        for user, comments_count in users.items():
+            for _ in range(comments_count):
+                comment = make_comment(author=user, replies='')
+                comments.append(comment)
+
+        for _ in range(unique):
+            comment = make_comment()
+            comments.append(comment)
+
+        return comments
+    return inner
 
 @pytest.fixture
-def list_of_comments(make_comment):
-    list_of_comments = []
-    for i in range(20):
-        if i % 4:
-            list_of_comments.append(make_comment(author='Jane', replies=''))
-        elif i % 3:
-            list_of_comments.append(make_comment(author='Jack'))
-        elif i % 2:
-            list_of_comments.append(make_comment(author='Jim'))
-        else:
-            list_of_comments.append(make_comment())
-    return list_of_comments
+def list_of_comments_with_preset_data(make_many_comments):
+    return make_many_comments(
+        users={'Jane': 15, 'Jack': 3, 'John': 2}
+    )
 
 
 @pytest.fixture

@@ -5,7 +5,8 @@ from reddit_api.top_users import (
     get_top_authors_with_count,
     extract_posts_from_response,
     extract_comments_from_response,
-    get_posts
+    get_posts,
+    get_comments
 )
 from reddit_api.models import Post
 from reddit_api.errors import InvalidSubredditNameError
@@ -63,8 +64,8 @@ def test__create_subreddit_url__raise_error_when_special_characters_in_name():
         create_subreddit_url(subreddit_name)
 
 
-def test__get_top_authors_with_count__top_commenters(list_of_comments):
-    top_commenters = get_top_authors_with_count(list_of_comments)
+def test__get_top_authors_with_count__top_commenters(list_of_comments_with_preset_data):
+    top_commenters = get_top_authors_with_count(list_of_comments_with_preset_data)
     assert top_commenters == [('Jane', 15), ('Jack', 3), ('John', 2)]
 
 
@@ -78,12 +79,6 @@ def test__extract_posts_from_response__return_list_of_posts(regular_post_respons
         )
     ]
     assert result == expected
-
-
-def test__extract_posts_from_response__post_contains_comments_url(regular_post_response):
-    result = extract_posts_from_response(regular_post_response)
-    expected = 'https://oauth.reddit.com/r/books/comments/19cfrzw/my_comment/.json'
-    assert result[0].comments_url == expected
 
 
 def test__get_posts__assert_post_list_length(
@@ -124,7 +119,7 @@ def test__get_posts__assert_last_post_within_time_limit(
     assert posts[-1].created >= date_limit
 
 
-def test__extract_comments_from_response__assert_list_has_two_comments(comment_data):
+def test__extract_comments_from_response__assert_comment_response_with_2_items_yields_2_comments(comment_data):
     comments_list = []
     extract_comments_from_response(comment_data, comments_list)
 
@@ -162,3 +157,11 @@ def test__extract_comments_from_response__assert_3_comment_author(
     comments_list = []
     extract_comments_from_response(comment_data_with_nested_replies, comments_list)
     assert comments_list[2].author == 'user2'
+
+
+def test__get_comments__empty_post_list_return_empty_comment_list(reddit_client):
+    empty_posts_list = []
+    list_of_comments = get_comments(empty_posts_list, reddit_client)
+    assert len(list_of_comments) == 0
+
+
