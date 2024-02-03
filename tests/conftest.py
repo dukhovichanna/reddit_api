@@ -1,6 +1,7 @@
 import pytest
 from reddit_api.models import Response, Comment
 from reddit_api.reddit_client import RedditClient
+from unittest.mock import patch
 from typing import Any
 
 
@@ -25,14 +26,15 @@ def make_comment():
         return Comment(
             author=author or 'John',
             permalink=permalink or '/r/books/comments/19cfrzw/user_comment',
-            replies=replies or {"data": {"after": "a1s2d3f4", "children": [1, 2]}})
+            replies=replies or '')
 
     return inner
+
 
 @pytest.fixture
 def make_many_comments(make_comment):
     def inner(
-        users: dict[str, int] | None = None, 
+        users: dict[str, int] | None = None,
         unique: int = 0,
     ):
         comments = []
@@ -47,6 +49,7 @@ def make_many_comments(make_comment):
 
         return comments
     return inner
+
 
 @pytest.fixture
 def list_of_comments_with_preset_data(make_many_comments):
@@ -109,3 +112,21 @@ def comment_data_with_nested_replies(comment_data):
             }
         }
     ]
+
+
+@pytest.fixture
+def requests_get_mock():
+    with patch('requests.get') as mock:
+        yield mock
+
+
+@pytest.fixture
+def requests_post_mock():
+    with patch('requests.post') as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_get_token():
+    with patch('reddit_api.reddit_client.RedditClient.get_token') as mock:
+        yield mock

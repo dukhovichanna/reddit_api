@@ -163,5 +163,3 @@ def test__get_comments__empty_post_list_return_empty_comment_list(reddit_client)
     empty_posts_list = []
     list_of_comments = get_comments(empty_posts_list, reddit_client)
     assert len(list_of_comments) == 0
-
-
